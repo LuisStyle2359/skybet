@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skybet</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
@@ -22,394 +20,301 @@
             color: #ffffff;
             display: flex;
             flex-direction: column;
+            align-items: center;
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         header {
             width: 100%;
-            padding: 1rem;
+            padding: 2rem 1rem;
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
+            text-align: center;
+            position: relative;
+            margin-bottom: 2rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            flex-shrink: 0;
         }
 
-        .header-content {
-            max-width: 1800px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo-title {
-            font-size: 2rem;
+        .logo {
+            font-size: 3rem;
             font-weight: 800;
             background: linear-gradient(45deg, #00bfff, #00ffcc);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             letter-spacing: 2px;
+            margin-bottom: 0.5rem;
         }
 
-        .logo-subtitle {
-            font-size: 0.8rem;
+        .subtitle {
+            font-size: 1rem;
             color: #888;
             letter-spacing: 3px;
             text-transform: uppercase;
         }
 
-        .auth-container {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .balance-display {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.5rem 1rem;
+        .balance-container {
+            position: relative;
+            margin: 1rem 0 2rem;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 50px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .balance-amount {
-            color: #00ffcc;
-            font-weight: bold;
-        }
-
-        .wallet-icon {
-            cursor: pointer;
-            color: #00ffcc;
-            transition: transform 0.3s ease;
-        }
-
-        .wallet-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .auth-button {
-            padding: 0.5rem 1.5rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
         }
 
-        .login-button {
-            background: rgba(0, 255, 204, 0.2);
+        .balance-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .balance-display {
+            font-size: 1.5rem;
+            font-weight: bold;
             color: #00ffcc;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .login-button:hover {
-            background: rgba(0, 255, 204, 0.3);
-        }
-
-        .register-button {
-            background: rgba(0, 191, 255, 0.2);
-            color: #00bfff;
-        }
-
-        .register-button:hover {
-            background: rgba(0, 191, 255, 0.3);
-        }
-
-        .logout-button {
-            background: rgba(255, 99, 71, 0.2);
-            color: #ff6347;
-        }
-
-        .logout-button:hover {
-            background: rgba(255, 99, 71, 0.3);
-        }
-
-        .main-container {
-            max-width: 1800px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 2rem;
-            display: flex;
-            gap: 2rem;
-            flex: 1;
-            min-height: 0;
-        }
-
-        .games-grid {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            overflow-y: auto;
-            padding-right: 0.5rem;
-        }
-
-        .game-card {
-            position: relative;
-            border-radius: 15px;
-            overflow: hidden;
+        .wallet-icon {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
             transition: transform 0.3s ease;
-            aspect-ratio: 16/9;
+            stroke: #00ffcc;
+            stroke-width: 2;
+            fill: none;
         }
 
-        .game-card:hover {
-            transform: translateY(-5px);
+        .wallet-icon:hover {
+            transform: scale(1.2);
         }
 
-        .game-link {
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            width: 100%;
+            max-width: 1800px;
+            padding: 2rem;
+            margin: 0 auto;
+        }
+
+        .menu-item {
+            position: relative;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            aspect-ratio: 1;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(0, 191, 255, 0) 0%,
+                rgba(0, 191, 255, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-item:hover::before {
+            opacity: 1;
+        }
+
+        .menu-item img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+            border-bottom: 3px solid #0078d4;
+        }
+
+        .menu-item:hover img {
+            transform: scale(1.1);
+            border-bottom: 3px solid #00bfff;
+        }
+
+        .menu-item a {
             display: block;
             text-decoration: none;
             color: inherit;
-            height: 100%;
+            position: relative;
         }
 
-        .game-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .game-card:hover .game-image {
-            transform: scale(1.1);
-        }
-
-        .game-overlay {
+        .game-info {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 1.5rem;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            transition: opacity 0.3s ease;
-        }
-
-        .game-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        .chat-container {
-            width: 350px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            flex-shrink: 0;
-        }
-
-        .chat-header {
             padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
         }
 
-        .online-count {
-            background: rgba(0, 255, 204, 0.2);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: #00ffcc;
+        .menu-item:hover .game-info {
+            transform: translateY(0);
         }
 
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            min-height: 0;
-        }
-
-        .message {
-            margin-bottom: 15px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: messageIn 0.3s forwards;
-        }
-
-        @keyframes messageIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .message-username {
-            color: #00ffcc;
+        .game-title {
+            font-size: 1.2rem;
             font-weight: bold;
         }
 
-        .message-time {
-            font-size: 0.8rem;
-            color: #888;
+        .game-icon {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #00bfff;
+            stroke-width: 2;
         }
 
-        .message-content {
-            color: rgba(255, 255, 255, 0.8);
-            word-break: break-word;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 15px;
-            border-radius: 15px;
+        .treasure-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            z-index: 1000;
+            min-width: 300px;
+            animation: fadeIn 0.3s ease-out;
         }
 
-        .message.self .message-content {
-            background: rgba(0, 255, 204, 0.1);
-        }
-
-        .chat-input {
-            padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .chat-form {
+        .treasure-popup h2 {
+            text-align: center;
+            color: #00ffcc;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
             display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 0.5rem;
         }
 
-        .chat-input input {
-            flex: 1;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .chat-input input:focus {
-            outline: none;
-            border-color: #00ffcc;
-        }
-
-        .chat-input button {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 25px;
-            background: #00ffcc;
-            color: black;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .chat-input button:hover {
-            background: #00e6b8;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: #1a1a1a;
-            padding: 2rem;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .close-button {
+        .treasure-popup .close-btn {
             position: absolute;
             top: 1rem;
             right: 1rem;
             background: none;
             border: none;
             color: #888;
-            font-size: 1.5rem;
             cursor: pointer;
+            font-size: 1.5rem;
             transition: color 0.3s ease;
         }
 
-        .close-button:hover {
-            color: white;
+        .treasure-popup .close-btn:hover {
+            color: #fff;
         }
 
-        .modal-title {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: #00ffcc;
-        }
-
-        .form-group {
+        .vault-balance {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
             margin-bottom: 1rem;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
+        .vault-balance-label {
             color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
         }
 
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .vault-balance-amount {
+            color: #00ffcc;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .treasure-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .treasure-input label {
+            color: #888;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .treasure-input input {
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
             background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
             color: white;
+            transition: all 0.3s ease;
         }
 
-        .form-group input:focus {
+        .treasure-input input:focus {
             outline: none;
             border-color: #00ffcc;
+            box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.2);
         }
 
-        .submit-button {
-            width: 100%;
-            padding: 0.75rem;
+        .treasure-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .treasure-actions button {
+            padding: 1rem;
             border: none;
-            border-radius: 8px;
-            background: #00ffcc;
-            color: black;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            color: #1a1a1a;
         }
 
-        .submit-button:hover {
-            background: #00e6b8;
+        .deposit-btn {
+            background: linear-gradient(45deg, #00bfff, #00ffcc);
         }
 
-        .error-message {
-            color: #ff6347;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
+        .withdraw-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+        }
+
+        .treasure-actions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .treasure-actions button:active {
+            transform: translateY(0);
         }
 
         .notification {
@@ -417,13 +322,15 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
+            background: rgba(0, 255, 204, 0.9);
+            color: #1a1a1a;
             padding: 1rem 2rem;
             border-radius: 50px;
-            background: rgba(0, 255, 204, 0.9);
-            color: black;
             font-weight: bold;
-            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             animation: notification 3s ease-in-out forwards;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
         }
 
         @keyframes notification {
@@ -433,244 +340,200 @@
             100% { transform: translate(-50%, -100%); opacity: 0; }
         }
 
-        @media (max-width: 1200px) {
-            .games-grid {
-                grid-template-columns: repeat(2, 1fr);
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .menu {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
         @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
+            .menu {
+                grid-template-columns: repeat(2, 1fr);
             }
-
-            .chat-container {
-                width: 100%;
-                height: 400px;
+            .logo {
+                font-size: 2rem;
             }
+        }
 
-            .games-grid {
+        @media (max-width: 480px) {
+            .menu {
                 grid-template-columns: 1fr;
             }
-
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
+            .treasure-popup {
+                width: 90%;
+                max-width: none;
             }
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="header-content">
-            <div class="logo-container">
-                <img src="skybet.png" alt="Skybet" class="logo-img" style="height: 88px; width: auto;">
-                <div class="logo-text">
-                    <div class="logo-title">SKYBET</div>
-                    <div class="logo-subtitle">Premium Gambling Experience</div>
-                </div>
-            </div>
-            <div class="auth-container" id="auth-container">
-                <!-- Auth buttons will be inserted here by JavaScript -->
-            </div>
-        </div>
+        <div class="logo">SKYBET</div>
+        <div class="subtitle">Premium Gambling Experience</div>
     </header>
 
-    <div class="main-container">
-        <div class="games-grid">
-            <!-- Game cards will be inserted here by JavaScript -->
-        </div>
+    <div class="balance-container">
+        <div class="balance-display" id="balance-display">Balance: $0.00</div>
+        <svg class="wallet-icon" id="wallet-icon" viewBox="0 0 24 24">
+            <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+            <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+        </svg>
+    </div>
 
-        <div class="chat-container">
-            <div class="chat-header">
-                <h2>Live Chat</h2>
-                <span class="online-count">0 online</span>
-            </div>
-            <div class="chat-messages" id="chat-messages">
-                <!-- Messages will be inserted here by JavaScript -->
-            </div>
-            <div class="chat-input">
-                <form id="chat-form" class="chat-form">
-                    <input type="text" placeholder="Type a message..." id="chat-input" disabled>
-                    <button type="submit" disabled>Send</button>
-                </form>
-            </div>
+    <div class="treasure-popup" id="treasure-popup">
+        <button class="close-btn" id="close-treasure">×</button>
+        <h2>
+            <svg class="wallet-icon" viewBox="0 0 24 24">
+                <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+                <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+                <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+            </svg>
+            Vault
+        </h2>
+        <div class="vault-balance">
+            <div class="vault-balance-label">Vault Balance</div>
+            <div class="vault-balance-amount" id="vault-balance-display">$0.00</div>
+        </div>
+        <div class="treasure-input">
+            <label for="treasure-amount">Amount</label>
+            <input 
+                type="number" 
+                id="treasure-amount" 
+                placeholder="Enter amount" 
+                min="0" 
+                step="0.01"
+            >
+        </div>
+        <div class="treasure-actions">
+            <button class="deposit-btn" id="deposit-btn">Deposit</button>
+            <button class="withdraw-btn" id="withdraw-btn">Withdraw</button>
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div class="modal" id="login-modal">
-        <div class="modal-content">
-            <button class="close-button" onclick="closeModal('login-modal')">×</button>
-            <h2 class="modal-title">Login</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-username">Username</label>
-                    <input type="text" id="login-username" required>
+    <div class="menu">
+        <div class="menu-item">
+            <a href="mines.html">
+                <img src="mines.png" alt="Mines">
+                <div class="game-info">
+                    <div class="game-title">Mines</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
                 </div>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" required>
-                </div>
-                <button type="submit" class="submit-button">Login</button>
-                <p class="error-message" id="login-error"></p>
-            </form>
+            </a>
         </div>
-    </div>
-
-    <!-- Register Modal -->
-    <div class="modal" id="register-modal">
-        <div class="modal-content">
-            <button class="close-button" onclick="closeModal('register-modal')">×</button>
-            <h2 class="modal-title">Register</h2>
-            <form id="register-form">
-                <div class="form-group">
-                    <label for="register-username">Username</label>
-                    <input type="text" id="register-username" required>
+        <div class="menu-item">
+            <a href="blackjack.html">
+                <img src="blackjack.png" alt="Blackjack">
+                <div class="game-info">
+                    <div class="game-title">Blackjack</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
                 </div>
-                <div class="form-group">
-                    <label for="register-password">Password</label>
-                    <input type="password" id="register-password" required>
-                </div>
-                <button type="submit" class="submit-button">Register</button>
-                <p class="error-message" id="register-error"></p>
-            </form>
+            </a>
         </div>
-    </div>
-
-    <!-- Wallet Modal -->
-    <div class="modal" id="wallet-modal">
-        <div class="modal-content">
-            <button class="close-button" onclick="closeModal('wallet-modal')">×</button>
-            <h2 class="modal-title">Wallet</h2>
-            <div class="form-group">
-                <label>Vault Balance</label>
-                <div class="balance-amount" id="vault-balance">$0.00</div>
-            </div>
-            <div class="form-group">
-                <label for="amount">Amount</label>
-                <input type="number" id="amount" min="0" step="0.01">
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <button onclick="handleDeposit()" class="submit-button" style="background: linear-gradient(45deg, #00bfff, #00ffcc);">Deposit</button>
-                <button onclick="handleWithdraw()" class="submit-button" style="background: linear-gradient(45deg, #ff6b6b, #ffd93d);">Withdraw</button>
-            </div>
+        <div class="menu-item">
+            <a href="dice.html">
+                <img src="dice.png" alt="Dice">
+                <div class="game-info">
+                    <div class="game-title">Dice</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
+                        <circle cx="7" cy="7" r="1"></circle>
+                        <circle cx="17" cy="7" r="1"></circle>
+                        <circle cx="7" cy="17" r="1"></circle>
+                        <circle cx="17" cy="17" r="1"></circle>
+                    </svg>
+                </div>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a href="crash.html">
+                <img src="crash.png" alt="Crash">
+                <div class="game-info">
+                    <div class="game-title">Crash</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                </div>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a href="towers.html">
+                <img src="towers.png" alt="Towers">
+                <div class="game-info">
+                    <div class="game-title">Towers</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <path d="M2 22h20"></path>
+                        <path d="M7 2h10"></path>
+                        <path d="M7 6h10"></path>
+                        <path d="M7 10h10"></path>
+                        <path d="M7 14h10"></path>
+                    </svg>
+                </div>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a href="limbo.html">
+                <img src="limbo.png" alt="Limbo">
+                <div class="game-info">
+                    <div class="game-title">Limbo</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <path d="M12 2v20"></path>
+                        <path d="M2 12h20"></path>
+                    </svg>
+                </div>
+            </a>
         </div>
     </div>
 
     <script>
-        // Update game data to use local images
-        const games = [
-            { title: 'Mines', image: 'mines.png', link: 'mines.html' },
-            { title: 'Blackjack', image: 'blackjack.png', link: 'blackjack.html' },
-            { title: 'Dice', image: 'dice.png', link: 'dice.html' },
-            { title: 'Crash', image: 'crash.png', link: 'crash.html' },
-            { title: 'Towers', image: 'towers.png', link: 'towers.html' },
-            { title: 'Limbo', image: 'limbo.png', link: 'limbo.html' }
-        ];
+        // Initialize balances
+        let balance = parseFloat(localStorage.getItem('balance')) || 0.00;
+        let vaultBalance = parseFloat(localStorage.getItem('vaultBalance')) || 0.00;
+        
+        // Get DOM elements
+        const balanceDisplay = document.getElementById('balance-display');
+        const vaultBalanceDisplay = document.getElementById('vault-balance-display');
+        const walletIcon = document.getElementById('wallet-icon');
+        const treasurePopup = document.getElementById('treasure-popup');
+        const closeTreasure = document.getElementById('close-treasure');
+        const depositBtn = document.getElementById('deposit-btn');
+        const withdrawBtn = document.getElementById('withdraw-btn');
+        const treasureAmount = document.getElementById('treasure-amount');
 
-        // WebSocket connection
-        let ws;
-        const WEBSOCKET_URL = 'wss://free.blr2.piesocket.com/v3/1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self=1';
-
-        function connect() {
-            ws = new WebSocket(WEBSOCKET_URL);
-            
-            ws.onopen = () => {
-                console.log('Connected to chat server');
-                showNotification('Connected to chat server');
-            };
-            
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.type === 'message') {
-                    addMessage(data);
-                } else if (data.type === 'system') {
-                    updateOnlineCount(data.onlineCount);
-                }
-            };
-            
-            ws.onclose = () => {
-                console.log('Disconnected from chat server');
-                showNotification('Disconnected from chat server. Reconnecting...');
-                setTimeout(connect, 1000);
-            };
+        // Format number with thousands separator
+        function formatBalance(number) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(number);
         }
 
-        // State management with session persistence
-        const STORAGE_PREFIX = window.location.hostname;
-        let currentUser = sessionStorage.getItem(`${STORAGE_PREFIX}_currentUser`);
-        let users = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_users`)) || {};
-
-        // Initialize games grid
-        function initGames() {
-            const gamesGrid = document.querySelector('.games-grid');
-            gamesGrid.innerHTML = games.map(game => `
-                <div class="game-card">
-                    <a href="${game.link}" class="game-link">
-                        <img src="${game.image}" alt="${game.title}" class="game-image">
-                        <div class="game-overlay">
-                            <div class="game-title">${game.title}</div>
-                        </div>
-                    </a>
-                </div>
-            `).join('');
-        }
-
-        // Update auth container
-        function updateAuthContainer() {
-            const container = document.getElementById('auth-container');
-            if (currentUser) {
-                container.innerHTML = `
-                    <div class="balance-display">
-                        <span class="balance-amount">$${users[currentUser].balance.toFixed(2)}</span>
-                        <span class="wallet-icon" onclick="openModal('wallet-modal')">💰</span>
-                    </div>
-                    <button class="auth-button logout-button" onclick="handleLogout()">
-                        <span>Logout</span>
-                    </button>
-                `;
-                document.getElementById('vault-balance').textContent = `$${users[currentUser].vaultBalance.toFixed(2)}`;
-            } else {
-                container.innerHTML = `
-                    <button class="auth-button login-button" onclick="openModal('login-modal')">
-                        <span>Login</span>
-                    </button>
-                    <button class="auth-button register-button" onclick="openModal('register-modal')">
-                        <span>Register</span>
-                    </button>
-                `;
-            }
-        }
-
-        // Modal handlers
-        function openModal(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-            document.querySelector(`#${id} form`)?.reset();
-            document.querySelector(`#${id} .error-message`).textContent = '';
+        // Update balance displays
+        function updateBalances() {
+            balanceDisplay.textContent = `Balance: $${formatBalance(balance)}`;
+            vaultBalanceDisplay.textContent = `$${formatBalance(vaultBalance)}`;
+            localStorage.setItem('balance', balance.toString());
+            localStorage.setItem('vaultBalance', vaultBalance.toString());
         }
 
         // Show notification
@@ -679,176 +542,91 @@
             notification.className = 'notification';
             notification.textContent = message;
             document.body.appendChild(notification);
+            
             setTimeout(() => notification.remove(), 3000);
         }
 
-        // Auth handlers
-        function handleRegister(e) {
-            e.preventDefault();
-            const username = document.getElementById('register-username').value;
-            const password = document.getElementById('register-password').value;
-            const errorElement = document.getElementById('register-error');
-
-            if (users[username]) {
-                errorElement.textContent = 'Username already taken';
-                return;
-            }
-
-            users[username] = {
-                password,
-                balance: 0.10,
-                vaultBalance: 0,
-                savedBalance: 0,
-                localBalance: 0
-            };
-            localStorage.setItem(`${STORAGE_PREFIX}_users`, JSON.stringify(users));
-            closeModal('register-modal');
-            showNotification('Registration successful! Please login.');
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            const errorElement = document.getElementById('login-error');
-
-            if (!users[username] || users[username].password !== password) {
-                errorElement.textContent = 'Invalid username or password';
-                return;
-            }
-
-            currentUser = username;
-            sessionStorage.setItem(`${STORAGE_PREFIX}_currentUser`, currentUser);
-            closeModal('login-modal');
-            updateAuthContainer();
-            enableChat();
-            connect(); // Connect to WebSocket after successful login
-            showNotification('Welcome back, ' + username + '!');
-        }
-
-        function handleLogout() {
-            currentUser = null;
-            sessionStorage.removeItem(`${STORAGE_PREFIX}_currentUser`);
-            updateAuthContainer();
-            disableChat();
-            if (ws) {
-                ws.close();
-            }
-            showNotification('Logged out successfully');
-        }
-
-        // Chat handlers
-        function enableChat() {
-            const input = document.getElementById('chat-input');
-            const button = document.querySelector('.chat-form button');
-            input.disabled = false;
-            button.disabled = false;
-            input.placeholder = 'Type a message...';
-        }
-
-        function disableChat() {
-            const input = document.getElementById('chat-input');
-            const button = document.querySelector('.chat-form button');
-            input.disabled = true;
-            button.disabled = true;
-            input.placeholder = 'Please login to chat';
-        }
-
-        function handleChat(e) {
-            e.preventDefault();
-            if (!currentUser) return;
-
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            
-            if (message && ws && ws.readyState === WebSocket.OPEN) {
-                const data = {
-                    type: 'message',
-                    username: currentUser,
-                    content: message,
-                    timestamp: new Date().toISOString()
-                };
-                
-                ws.send(JSON.stringify(data));
-                input.value = '';
-            }
-        }
-
-        function addMessage(data) {
-            const messages = document.getElementById('chat-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${data.username === currentUser ? 'self' : ''}`;
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <span class="message-username">${escapeHtml(data.username)}</span>
-                    <span class="message-time">${new Date(data.timestamp).toLocaleTimeString()}</span>
-                </div>
-                <div class="message-content">${escapeHtml(data.content)}</div>
-            `;
-            
-            messages.appendChild(messageDiv);
-            messages.scrollTop = messages.scrollHeight;
-        }
-
-        function updateOnlineCount(count) {
-            document.querySelector('.online-count').textContent = `${count} online`;
-        }
-
-        function escapeHtml(unsafe) {
-            return unsafe
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Wallet handlers
+        // Handle deposit
         function handleDeposit() {
-            const amount = parseFloat(document.getElementById('amount').value);
-            if (!amount || amount <= 0) return;
-            if (amount > users[currentUser].balance) {
+            const amount = parseFloat(treasureAmount.value);
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid amount');
+                return;
+            }
+            if (amount > balance) {
                 showNotification('Insufficient balance');
                 return;
             }
 
-            users[currentUser].balance -= amount;
-            users[currentUser].vaultBalance += amount;
-            localStorage.setItem(`${STORAGE_PREFIX}_users`, JSON.stringify(users));
-            updateAuthContainer();
-            document.getElementById('amount').value = '';
-            showNotification(`Deposited $${amount.toFixed(2)} to vault`);
+            balance -= amount;
+            vaultBalance += amount;
+            updateBalances();
+            showNotification(`$${formatBalance(amount)} deposited to vault!`);
+            treasurePopup.style.display = 'none';
+            treasureAmount.value = '';
         }
 
+        // Handle withdraw
         function handleWithdraw() {
-            const amount = parseFloat(document.getElementById('amount').value);
-            if (!amount || amount <= 0) return;
-            if (amount > users[currentUser].vaultBalance) {
+            const amount = parseFloat(treasureAmount.value);
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid amount');
+                return;
+            }
+            if (amount > vaultBalance) {
                 showNotification('Insufficient vault balance');
                 return;
             }
 
-            users[currentUser].balance += amount;
-            users[currentUser].vaultBalance -= amount;
-            localStorage.setItem(`${STORAGE_PREFIX}_users`, JSON.stringify(users));
-            updateAuthContainer();
-            document.getElementById('amount').value = '';
-            showNotification(`Withdrawn $${amount.toFixed(2)} from vault`);
+            balance += amount;
+            vaultBalance -= amount;
+            updateBalances();
+            showNotification(`$${formatBalance(amount)} withdrawn from vault!`);
+            treasurePopup.style.display = 'none';
+            treasureAmount.value = '';
         }
 
-        // Event listeners
-        document.getElementById('register-form').addEventListener('submit', handleRegister);
-        document.getElementById('login-form').addEventListener('submit', handleLogin);
-        document.getElementById('chat-form').addEventListener('submit', handleChat);
+        // Event Listeners
+        walletIcon.addEventListener('click', () => {
+            treasurePopup.style.display = 'flex';
+            treasureAmount.value = '';
+            treasureAmount.focus();
+        });
 
-        // Initialize
-        if (currentUser) {
-            enableChat();
-            connect();
-        }
-        initGames();
-        updateAuthContainer();
+        closeTreasure.addEventListener('click', () => {
+            treasurePopup.style.display = 'none';
+        });
+
+        depositBtn.addEventListener('click', handleDeposit);
+        withdrawBtn.addEventListener('click', handleWithdraw);
+
+        treasureAmount.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                depositBtn.click();
+            }
+        });
+
+        // Close popup when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === treasurePopup) {
+                treasurePopup.style.display = 'none';
+            }
+        });
+
+        // Initialize balance displays
+        updateBalances();
+
+        // Admin mode (press * to add funds)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '*') {
+                const amount = parseFloat(prompt('Enter amount to add:'));
+                if (amount && amount > 0) {
+                    balance += amount;
+                    updateBalances();
+                    showNotification(`$${formatBalance(amount)} added to balance!`);
+                }
+            }
+        });
     </script>
 </body>
 </html>
