@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skybet</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * {
             margin: 0;
@@ -46,11 +47,6 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-        }
-
-        .logo-img {
-            height: 88px;
-            width: auto;
         }
 
         .logo-text {
@@ -462,13 +458,32 @@
                 gap: 1rem;
             }
         }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="header-content">
             <div class="logo-container">
-                <img src="skybet.png" alt="Skybet" class="logo-img">
+                <img src="skybet.png" alt="Skybet" class="logo-img" style="height: 88px; width: auto;">
                 <div class="logo-text">
                     <div class="logo-title">SKYBET</div>
                     <div class="logo-subtitle">Premium Gambling Experience</div>
@@ -563,7 +578,7 @@
     </div>
 
     <script>
-        // Game data
+        // Update game data to use local images
         const games = [
             { title: 'Mines', image: 'mines.png', link: 'mines.html' },
             { title: 'Blackjack', image: 'blackjack.png', link: 'blackjack.html' },
@@ -682,7 +697,9 @@
             users[username] = {
                 password,
                 balance: 0.10,
-                vaultBalance: 0
+                vaultBalance: 0,
+                savedBalance: 0,
+                localBalance: 0
             };
             localStorage.setItem(`${STORAGE_PREFIX}_users`, JSON.stringify(users));
             closeModal('register-modal');
