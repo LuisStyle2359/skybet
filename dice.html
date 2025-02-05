@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -525,17 +525,18 @@
                     </div>
                 </div>
             </div>
-            <div class="history">
-                <div class="history-title">History</div>
-                <div class="history-list" id="historyList"></div>
-            </div>
         </div>
+    </div>
+
+    <div class="history">
+        <div class="history-title">History</div>
+        <div class="history-list" id="historyList"></div>
     </div>
 
     <div class="notification-container" id="notificationContainer"></div>
 
     <script>
-        let balance = localStorage.getItem('balance') ? parseFloat(localStorage.getItem('balance')) : 10.00;
+        let balance = localStorage.getItem('balance') ? parseFloat(localStorage.getItem('balance')) : 0.00;
         const diceNumber = document.getElementById('diceNumber');
         const betAmount = document.getElementById('betAmount');
         const targetNumber = document.getElementById('targetNumber');
@@ -559,7 +560,7 @@
 
         document.getElementById('backButton').addEventListener('click', function() {
             localStorage.setItem('balance', balance.toFixed(2));
-            window.location.replace('menu.html');
+            window.location.replace('index.html');
         });
 
         function showNotification(message, type = '') {
