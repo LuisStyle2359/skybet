@@ -9,6 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
@@ -223,6 +224,17 @@
         .chat-header {
             padding: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .online-count {
+            background: rgba(0, 255, 204, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #00ffcc;
         }
 
         .chat-messages {
@@ -233,7 +245,17 @@
         }
 
         .message {
-            margin-bottom: 1rem;
+            margin-bottom: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: messageIn 0.3s forwards;
+        }
+
+        @keyframes messageIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .message-header {
@@ -256,6 +278,13 @@
         .message-content {
             color: rgba(255, 255, 255, 0.8);
             word-break: break-word;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 15px;
+        }
+
+        .message.self .message-content {
+            background: rgba(0, 255, 204, 0.1);
         }
 
         .chat-input {
@@ -459,6 +488,7 @@
         <div class="chat-container">
             <div class="chat-header">
                 <h2>Live Chat</h2>
+                <span class="online-count">0 online</span>
             </div>
             <div class="chat-messages" id="chat-messages">
                 <!-- Messages will be inserted here by JavaScript -->
@@ -543,11 +573,38 @@
             { title: 'Limbo', image: 'limbo.png', link: 'limbo.html' }
         ];
 
+        // WebSocket connection
+        let ws;
+        const WEBSOCKET_URL = 'wss://free.blr2.piesocket.com/v3/1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self=1';
+
+        function connect() {
+            ws = new WebSocket(WEBSOCKET_URL);
+            
+            ws.onopen = () => {
+                console.log('Connected to chat server');
+                showNotification('Connected to chat server');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'message') {
+                    addMessage(data);
+                } else if (data.type === 'system') {
+                    updateOnlineCount(data.onlineCount);
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log('Disconnected from chat server');
+                showNotification('Disconnected from chat server. Reconnecting...');
+                setTimeout(connect, 1000);
+            };
+        }
+
         // State management with session persistence
         const STORAGE_PREFIX = window.location.hostname;
         let currentUser = sessionStorage.getItem(`${STORAGE_PREFIX}_currentUser`);
         let users = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_users`)) || {};
-        let messages = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_messages`)) || [];
 
         // Initialize games grid
         function initGames() {
@@ -648,6 +705,7 @@
             closeModal('login-modal');
             updateAuthContainer();
             enableChat();
+            connect(); // Connect to WebSocket after successful login
             showNotification('Welcome back, ' + username + '!');
         }
 
@@ -656,6 +714,9 @@
             sessionStorage.removeItem(`${STORAGE_PREFIX}_currentUser`);
             updateAuthContainer();
             disableChat();
+            if (ws) {
+                ws.close();
+            }
             showNotification('Logged out successfully');
         }
 
@@ -682,33 +743,48 @@
 
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
-            if (!message) return;
-
-            const newMessage = {
-                id: Date.now(),
-                user: currentUser,
-                text: message,
-                timestamp: new Date().toISOString()
-            };
-
-            messages.push(newMessage);
-            localStorage.setItem(`${STORAGE_PREFIX}_messages`, JSON.stringify(messages));
-            updateChat();
-            input.value = '';
+            
+            if (message && ws && ws.readyState === WebSocket.OPEN) {
+                const data = {
+                    type: 'message',
+                    username: currentUser,
+                    content: message,
+                    timestamp: new Date().toISOString()
+                };
+                
+                ws.send(JSON.stringify(data));
+                input.value = '';
+            }
         }
 
-        function updateChat() {
-            const container = document.getElementById('chat-messages');
-            container.innerHTML = messages.map(message => `
-                <div class="message">
-                    <div class="message-header">
-                        <span class="message-username">${message.user}</span>
-                        <span class="message-time">${new Date(message.timestamp).toLocaleTimeString()}</span>
-                    </div>
-                    <div class="message-content">${message.text}</div>
+        function addMessage(data) {
+            const messages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${data.username === currentUser ? 'self' : ''}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-username">${escapeHtml(data.username)}</span>
+                    <span class="message-time">${new Date(data.timestamp).toLocaleTimeString()}</span>
                 </div>
-            `).join('');
-            container.scrollTop = container.scrollHeight;
+                <div class="message-content">${escapeHtml(data.content)}</div>
+            `;
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function updateOnlineCount(count) {
+            document.querySelector('.online-count').textContent = `${count} online`;
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
         // Wallet handlers
@@ -752,10 +828,10 @@
         // Initialize
         if (currentUser) {
             enableChat();
+            connect();
         }
         initGames();
         updateAuthContainer();
-        updateChat();
     </script>
 </body>
 </html>
