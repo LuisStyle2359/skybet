@@ -1,9 +1,9 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skybet Dice</title>
+    <title>SkyBet Dice</title>
     <style>
         :root {
             --primary-color: #0F1923;
@@ -19,756 +19,497 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            margin: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
             min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .back-button {
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            padding: 0.75rem 1.25rem;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
             color: var(--text-color);
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            backdrop-filter: blur(10px);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 1000;
         }
 
-        .back-button:hover {
-            background: rgba(0, 163, 255, 0.1);
-            border-color: var(--accent-color);
-            transform: translateX(-2px);
-        }
-
-        .back-button svg {
-            width: 16px;
-            height: 16px;
-            stroke: currentColor;
-        }
-
-        @media (max-width: 480px) {
-            .back-button {
-                top: 0.5rem;
-                left: 0.5rem;
-                padding: 0.5rem 1rem;
-                font-size: 0.8rem;
-            }
-        }
-
-        header {
-            width: 100%;
-            padding: 1rem;
+        .header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
             background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .logo {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(45deg, var(--accent-color), #00ffcc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 2px;
+            display: inline-block;
+            transition: transform 0.2s ease;
         }
 
-        .subtitle {
-            font-size: 0.8rem;
-            color: #888;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+        .logo:hover {
+            transform: scale(1.05);
         }
 
-        .container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-            max-height: calc(100vh - 80px);
-            margin-right: 200px; /* Make space for history sidebar */
+        .logo img {
+            height: 80px;
+            width: auto;
         }
 
-        .game-container {
-            background: var(--secondary-color);
-            padding: 1.5rem;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 500px;
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 320px 1fr 280px;
+            gap: 2rem;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-color);
-        }
-
-        .result-display {
-            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
             padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        #diceNumber {
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .balance-display {
             font-size: 2.5rem;
             font-weight: bold;
-            display: block;
+            background: linear-gradient(45deg, var(--accent-color), #66c4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
 
-        .multiplier {
-            font-size: 1.1rem;
-            color: var(--accent-color);
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .bet-controls, .target-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        label {
-            font-size: 0.8rem;
-            color: #888;
+        .label {
+            color: #aaa;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
+        .betting-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .bet-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
         .bet-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .bet-buttons {
             display: flex;
             gap: 0.5rem;
         }
 
-        input[type="number"] {
-            flex: 1;
-            padding: 0.75rem;
-            background: rgba(0, 0, 0, 0.2);
+        .btn {
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-color);
-            border-radius: 6px;
             color: var(--text-color);
-            font-size: 1rem;
-        }
-
-        .bet-input button {
             padding: 0.75rem 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            border-radius: 6px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            flex: 1;
         }
 
-        .bet-input button:hover {
-            background: rgba(0, 163, 255, 0.1);
+        .bet-input:focus {
             border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(0, 163, 255, 0.2);
+            outline: none;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .roll-btn {
+            background: linear-gradient(45deg, var(--accent-color), #0088D1);
+            border: none;
+            padding: 1.25rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0, 163, 255, 0.3);
+            width: 100%;
+        }
+
+        .roll-btn:hover {
+            background: linear-gradient(45deg, #0088D1, var(--accent-color));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 163, 255, 0.4);
+        }
+
+        .roll-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-display {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .result-number {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .result-number.placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .result-number.win {
+            color: var(--win-color);
+            text-shadow: 0 0 20px rgba(62, 207, 142, 0.3);
+        }
+
+        .result-number.lose {
+            color: var(--lose-color);
+            text-shadow: 0 0 20px rgba(248, 73, 96, 0.3);
+        }
+
+        .multiplier {
+            font-size: 1.4rem;
+            color: var(--accent-color);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-container {
+            padding: 2rem;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            color: #aaa;
+            font-size: 1.1rem;
         }
 
         input[type="range"] {
             width: 100%;
-            margin: 0.5rem 0;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            outline: none;
             -webkit-appearance: none;
-            background: rgba(0, 0, 0, 0.2);
-            height: 6px;
-            border-radius: 3px;
+            margin: 1rem 0;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 24px;
+            height: 24px;
             background: var(--accent-color);
             border-radius: 50%;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
+            transform: scale(1.2);
         }
 
-        .target-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            color: #888;
-        }
-
-        .roll-button {
-            padding: 0.75rem;
-            background: var(--accent-color);
-            border: none;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .roll-button:hover {
-            background: #0088D1;
-            transform: translateY(-1px);
-        }
-
-        .stats {
-            margin-top: 1rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .stat-item {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            border-radius: 6px;
+        .target-value {
+            font-size: 2rem;
+            font-weight: bold;
             text-align: center;
-            border: 1px solid var(--border-color);
-        }
-
-        .stat-item p {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-top: 0.25rem;
-        }
-
-        .win {
-            color: var(--win-color);
-        }
-
-        .lose {
-            color: var(--lose-color);
-        }
-
-        .history {
-            position: fixed;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 200px;
-            background: var(--secondary-color);
-            padding: 1rem;
-            border-left: 1px solid var(--border-color);
-            overflow-y: auto;
-            margin-top: 80px;
-        }
-
-        .history-title {
-            color: #888;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
-            position: sticky;
-            top: 0;
-            background: var(--secondary-color);
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+            background: linear-gradient(45deg, var(--accent-color), #66c4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .history-list {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
         }
 
         .history-item {
-            padding: 0.75rem;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border: 1px solid var(--border-color);
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        @media (max-width: 768px) {
-            .history {
-                display: none;
-            }
-            
-            .container {
-                margin-right: 0;
-            }
-        }
-
-        @keyframes roll {
-            0% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(180deg); }
-            100% { transform: scale(1) rotate(360deg); }
-        }
-
-        .rolling {
-            animation: roll 0.6s ease-in-out;
-        }
-
-        .disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .notification-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            pointer-events: none;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .notification {
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-            animation: fadeInOut 2s ease-in-out forwards;
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(10px);
-        }
-
-        .notification.win {
-            border-color: var(--win-color);
-        }
-
-        .notification.lose {
-            border-color: var(--lose-color);
-        }
-
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translateY(20px); }
-            10% { opacity: 1; transform: translateY(0); }
-            90% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-20px); }
-        }
-
-        .auto-controls {
-            margin-top: 1rem;
-            background: rgba(0, 0, 0, 0.2);
             padding: 1rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
         }
 
-        .auto-controls-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
+        .history-item:hover {
+            transform: translateX(-4px);
         }
 
-        .auto-controls-title {
-            color: #888;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .history-item.win {
+            background: rgba(62, 207, 142, 0.2);
+            color: var(--win-color);
+            text-shadow: 0 0 10px rgba(62, 207, 142, 0.3);
         }
 
-        .auto-toggle {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
+        .history-item.lose {
+            background: rgba(248, 73, 96, 0.2);
+            color: var(--lose-color);
+            text-shadow: 0 0 10px rgba(248, 73, 96, 0.3);
         }
 
-        .auto-toggle.active {
-            background: var(--lose-color);
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .auto-toggle:hover {
-            transform: translateY(-1px);
+        .spin-icon {
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: block;
         }
 
-        .auto-settings {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .auto-setting-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .auto-setting-item input {
-            padding: 0.5rem;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            color: var(--text-color);
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 0.5rem;
-            }
-            
-            .game-container {
-                padding: 1rem;
-            }
-            
-            #diceNumber {
-                font-size: 2rem;
-            }
-            
-            .bet-input button {
-                padding: 0.75rem 0.5rem;
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <button class="back-button" id="backButton">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Back to Menu
-    </button>
-
-    <header>
-        <div class="logo">SKYBET</div>
-        <div class="subtitle">Premium Gambling Experience</div>
+    <header class="header">
+        <a href="index.html" class="logo">
+            <img src="skybet.png" alt="SkyBet Logo">
+        </a>
     </header>
 
-    <div class="container">
-        <div class="game-container">
-            <div class="result-display">
-                <span id="diceNumber">Roll Dice</span>
-                <div class="multiplier">
-                    <span>Multiplier: </span>
-                    <span id="multiplierValue">2.00x</span>
-                </div>
+    <main class="main-container">
+        <div class="betting-controls">
+            <div class="card">
+                <div class="balance-display">$<span id="balance">0.00</span></div>
+                <div class="label">Balance</div>
             </div>
-            <div class="controls">
-                <div class="bet-controls">
-                    <label>Bet Amount</label>
-                    <div class="bet-input">
-                        <input type="number" id="betAmount" value="1.00" min="0.01" step="0.01" />
-                        <button class="half">½</button>
-                        <button class="double">2×</button>
-                        <button class="max">Max</button>
+
+            <div class="card">
+                <div class="label">Bet Amount</div>
+                <div class="bet-input-group">
+                    <input type="number" id="betAmount" class="bet-input" value="1.00" min="0.01" step="0.01">
+                    <div class="bet-buttons">
+                        <button class="btn" id="halfBtn">½</button>
+                        <button class="btn" id="doubleBtn">2×</button>
                     </div>
                 </div>
-                <div class="target-controls">
-                    <label>Roll Under</label>
-                    <input type="range" id="targetNumber" min="1" max="98" value="50" />
-                    <div class="target-info">
-                        <span>Target: <span id="targetValue">50.00</span></span>
-                        <span>Win Chance: <span id="winChance">49.00%</span></span>
-                    </div>
+                <div class="label">
+                    Profit on Win: $<span id="profitOnWin">0.98</span>
                 </div>
-                <button id="rollButton" class="roll-button">Roll Dice</button>
-            </div>
-            <div class="stats">
-                <div class="stat-item">
-                    <label>Balance</label>
-                    <p>$<span id="balance">0.00</span></p>
-                </div>
-                <div class="stat-item">
-                    <label>Profit on Win</label>
-                    <p>$<span id="profitOnWin">0.00</span></p>
-                </div>
-            </div>
-            <div class="auto-controls">
-                <div class="auto-controls-header">
-                    <div class="auto-controls-title">Auto Mode</div>
-                    <button id="autoToggle" class="auto-toggle">Start Auto</button>
-                </div>
-                <div class="auto-settings">
-                    <div class="auto-setting-item">
-                        <label>Number of Rolls</label>
-                        <input type="number" id="autoRolls" value="10" min="1" max="1000" />
-                    </div>
-                    <div class="auto-setting-item">
-                        <label>Delay (ms)</label>
-                        <input type="number" id="autoDelay" value="1" min="1" max="5000" step="1" />
-                    </div>
-                </div>
+                <button class="btn roll-btn" id="rollBtn">Roll Dice</button>
             </div>
         </div>
-    </div>
 
-    <div class="history">
-        <div class="history-title">History</div>
-        <div class="history-list" id="historyList"></div>
-    </div>
+        <div class="game-display">
+            <div class="card result-display">
+                <div class="result-number placeholder" id="result">?</div>
+                <div class="multiplier">
+                    Multiplier: <span id="multiplier">1.98x</span>
+                </div>
+            </div>
 
-    <div class="notification-container" id="notificationContainer"></div>
+            <div class="card slider-container">
+                <div class="slider-header">
+                    <span>Roll Under</span>
+                    <span>Win Chance: <span id="winChance">50.00</span>%</span>
+                </div>
+                <input type="range" id="target" min="1" max="98" value="50">
+                <div class="target-value" id="targetValue">50.00</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="label" style="margin-bottom: 1rem;">History</div>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </main>
 
     <script>
+        // Elements
+        const balanceEl = document.getElementById('balance');
+        const betAmountEl = document.getElementById('betAmount');
+        const profitOnWinEl = document.getElementById('profitOnWin');
+        const rollBtnEl = document.getElementById('rollBtn');
+        const resultEl = document.getElementById('result');
+        const multiplierEl = document.getElementById('multiplier');
+        const targetEl = document.getElementById('target');
+        const targetValueEl = document.getElementById('targetValue');
+        const winChanceEl = document.getElementById('winChance');
+        const historyListEl = document.getElementById('historyList');
+        const halfBtnEl = document.getElementById('halfBtn');
+        const doubleBtnEl = document.getElementById('doubleBtn');
+
+        // State
         let balance = localStorage.getItem('balance') ? parseFloat(localStorage.getItem('balance')) : 0.00;
-        const diceNumber = document.getElementById('diceNumber');
-        const betAmount = document.getElementById('betAmount');
-        const targetNumber = document.getElementById('targetNumber');
-        const targetValue = document.getElementById('targetValue');
-        const winChance = document.getElementById('winChance');
-        const balanceDisplay = document.getElementById('balance');
-        const profitOnWin = document.getElementById('profitOnWin');
-        const multiplierValue = document.getElementById('multiplierValue');
-        const rollButton = document.getElementById('rollButton');
-        const historyList = document.getElementById('historyList');
-        const notificationContainer = document.getElementById('notificationContainer');
-        const maxHistoryItems = 50;
+        let rolling = false;
 
-        // Auto mode elements
-        const autoToggle = document.getElementById('autoToggle');
-        const autoRolls = document.getElementById('autoRolls');
-        const autoDelay = document.getElementById('autoDelay');
-        let autoModeActive = false;
-        let remainingRolls = 0;
-        let autoInterval = null;
-
-        document.getElementById('backButton').addEventListener('click', function() {
-            localStorage.setItem('balance', balance.toFixed(2));
-            window.location.replace('index.html');
-        });
-
-        function showNotification(message, type = '') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            
-            notificationContainer.innerHTML = '';
-            notificationContainer.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 2000);
+        // Functions
+        function updateBalance(newBalance) {
+            balance = newBalance;
+            balanceEl.textContent = balance.toFixed(2);
+            localStorage.setItem('balance', balance.toString());
         }
-
-        function updateBalance(amount) {
-            balance += amount;
-            balanceDisplay.textContent = balance.toFixed(2);
-            localStorage.setItem('balance', balance.toFixed(2));
-        }
-
-        document.querySelector('.half').addEventListener('click', () => {
-            betAmount.value = (parseFloat(betAmount.value) / 2).toFixed(2);
-            updateProfitDisplay();
-        });
-
-        document.querySelector('.double').addEventListener('click', () => {
-            betAmount.value = (parseFloat(betAmount.value) * 2).toFixed(2);
-            updateProfitDisplay();
-        });
-
-        document.querySelector('.max').addEventListener('click', () => {
-            betAmount.value = balance.toFixed(2);
-            updateProfitDisplay();
-        });
-
-        betAmount.addEventListener('input', updateProfitDisplay);
-
-        targetNumber.addEventListener('input', () => {
-            const target = parseFloat(targetNumber.value);
-            targetValue.textContent = target.toFixed(2);
-            winChance.textContent = target.toFixed(2) + '%';
-            updateMultiplier();
-            updateProfitDisplay();
-        });
 
         function updateMultiplier() {
-            const target = parseFloat(targetNumber.value);
+            const target = parseFloat(targetEl.value);
             const multiplier = (99 / target).toFixed(2);
-            multiplierValue.textContent = multiplier + 'x';
+            multiplierEl.textContent = multiplier + 'x';
             return multiplier;
         }
 
-        function updateProfitDisplay() {
-            const bet = parseFloat(betAmount.value);
+        function updateProfitOnWin() {
+            const bet = parseFloat(betAmountEl.value);
             const multiplier = parseFloat(updateMultiplier());
             const profit = (bet * multiplier - bet).toFixed(2);
-            profitOnWin.textContent = profit;
+            profitOnWinEl.textContent = profit;
         }
 
         function addToHistory(result, won) {
-            const historyItem = document.createElement('div');
-            historyItem.className = `history-item ${won ? 'win' : 'lose'}`;
+            const item = document.createElement('div');
+            item.className = `history-item ${won ? 'win' : 'lose'}`;
+            item.textContent = result.toFixed(2);
             
-            historyItem.innerHTML = `
-                <div>${result}</div>
-                <div style="font-size: 0.8rem; color: ${won ? 'var(--win-color)' : 'var(--lose-color)'}">
-                    ${won ? 'Win' : 'Loss'}
-                </div>
-            `;
-            
-            historyList.insertBefore(historyItem, historyList.firstChild);
-            
-            if (historyList.children.length > maxHistoryItems) {
-                historyList.removeChild(historyList.lastChild);
+            historyListEl.insertBefore(item, historyListEl.firstChild);
+            if (historyListEl.children.length > 50) {
+                historyListEl.removeChild(historyListEl.lastChild);
             }
         }
 
-        function rollDice() {
-            return (Math.random() * 100).toFixed(2);
+        function setRolling(isRolling) {
+            rolling = isRolling;
+            rollBtnEl.disabled = isRolling;
+            if (isRolling) {
+                rollBtnEl.innerHTML = '<svg class="spin-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+            } else {
+                rollBtnEl.textContent = 'Roll Dice';
+            }
         }
 
-        function quickRoll() {
-            const bet = parseFloat(betAmount.value);
-            const target = parseFloat(targetNumber.value);
-            
+        function roll() {
+            if (rolling) return;
+
+            const bet = parseFloat(betAmountEl.value);
+            const target = parseFloat(targetEl.value);
+
             if (bet > balance) {
-                showNotification('Insufficient balance!', 'lose');
-                stopAutoMode();
+                resultEl.textContent = 'Insufficient balance!';
+                resultEl.className = 'result-number lose';
                 return;
             }
-            
+
             if (bet < 0.01) {
-                showNotification('Minimum bet is $0.01!', 'lose');
-                stopAutoMode();
+                resultEl.textContent = 'Min bet: $0.01';
+                resultEl.className = 'result-number lose';
                 return;
             }
 
-            const result = parseFloat(rollDice());
-            diceNumber.textContent = result.toFixed(2);
-            
-            const won = result < target;
-            const multiplier = parseFloat(updateMultiplier());
-            const amount = won ? bet * (multiplier - 1) : -bet;
-            
-            updateBalance(amount);
-            addToHistory(result.toFixed(2), won);
-            
-            diceNumber.className = won ? 'win' : 'lose';
-
-            if (autoModeActive) {
-                remainingRolls--;
-                if (remainingRolls <= 0) {
-                    stopAutoMode();
-                }
-            }
-        }
-
-        function animateRoll(callback) {
-            diceNumber.classList.add('rolling');
-            rollButton.disabled = true;
-            rollButton.classList.add('disabled');
+            setRolling(true);
+            resultEl.className = 'result-number';
             
             let rolls = 0;
             const maxRolls = 20;
-            const interval = setInterval(() => {
-                diceNumber.textContent = (Math.random() * 100).toFixed(2);
+            const rollInterval = setInterval(() => {
+                const tempResult = Math.random() * 100;
+                resultEl.textContent = tempResult.toFixed(2);
                 rolls++;
+                
                 if (rolls >= maxRolls) {
-                    clearInterval(interval);
-                    diceNumber.classList.remove('rolling');
-                    rollButton.disabled = false;
-                    rollButton.classList.remove('disabled');
-                    callback();
+                    clearInterval(rollInterval);
+                    const result = Math.random() * 100;
+                    const won = result < target;
+                    const multiplier = parseFloat(updateMultiplier());
+                    const amount = won ? bet * (multiplier - 1) : -bet;
+
+                    resultEl.textContent = result.toFixed(2);
+                    resultEl.className = `result-number ${won ? 'win' : 'lose'}`;
+                    
+                    updateBalance(balance + amount);
+                    addToHistory(result, won);
+                    setRolling(false);
                 }
             }, 50);
         }
 
-        function handleRoll() {
-            if (autoModeActive) {
-                quickRoll();
-            } else {
-                animateRoll(quickRoll);
-            }
-        }
-
-        function startAutoMode() {
-            if (autoModeActive) return;
-            
-            const rolls = parseInt(autoRolls.value);
-            const delay = parseInt(autoDelay.value);
-            
-            if (rolls < 1 || delay < 1) {
-                showNotification('Invalid auto mode settings!', 'lose');
-                return;
-            }
-
-            autoModeActive = true;
-            remainingRolls = rolls;
-            autoToggle.textContent = 'Stop Auto';
-            autoToggle.classList.add('active');
-            
-            autoRolls.disabled = true;
-            autoDelay.disabled = true;
-            
-            handleRoll();
-            autoInterval = setInterval(() => {
-                if (remainingRolls > 0) {
-                    handleRoll();
-                } else {
-                    stopAutoMode();
-                }
-            }, delay);
-        }
-
-        function stopAutoMode() {
-            if (!autoModeActive) return;
-            
-            autoModeActive = false;
-            remainingRolls = 0;
-            clearInterval(autoInterval);
-            
-            autoToggle.textContent = 'Start Auto';
-            autoToggle.classList.remove('active');
-            
-            autoRolls.disabled = false;
-            autoDelay.disabled = false;
-        }
-
-        rollButton.addEventListener('click', handleRoll);
-        autoToggle.addEventListener('click', () => {
-            if (autoModeActive) {
-                stopAutoMode();
-            } else {
-                startAutoMode();
-            }
+        // Event Listeners
+        halfBtnEl.addEventListener('click', () => {
+            const newAmount = Math.max(0.01, parseFloat(betAmountEl.value) / 2);
+            betAmountEl.value = newAmount.toFixed(2);
+            updateProfitOnWin();
         });
+
+        doubleBtnEl.addEventListener('click', () => {
+            const newAmount = Math.min(balance, parseFloat(betAmountEl.value) * 2);
+            betAmountEl.value = newAmount.toFixed(2);
+            updateProfitOnWin();
+        });
+
+        betAmountEl.addEventListener('input', updateProfitOnWin);
+
+        targetEl.addEventListener('input', () => {
+            const target = parseFloat(targetEl.value);
+            targetValueEl.textContent = target.toFixed(2);
+            winChanceEl.textContent = target.toFixed(2);
+            updateProfitOnWin();
+        });
+
+        rollBtnEl.addEventListener('click', roll);
 
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && !rollButton.disabled && !autoModeActive) {
+            if (e.code === 'Space' && !rolling) {
                 e.preventDefault();
-                handleRoll();
+                roll();
             }
         });
 
-        balanceDisplay.textContent = balance.toFixed(2);
+        // Initialize
+        updateBalance(balance);
         updateMultiplier();
-        updateProfitDisplay();
+        updateProfitOnWin();
     </script>
 </body>
 </html>
