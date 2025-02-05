@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skybet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            background-attachment: fixed;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            width: 100%;
+            padding: 2rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            position: relative;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #00bfff, #00ffcc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #888;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .balance-container {
+            position: relative;
+            margin: 1rem 0 2rem;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .balance-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .balance-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ffcc;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .wallet-icon {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            stroke: #00ffcc;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .wallet-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            width: 100%;
+            max-width: 1800px;
+            padding: 2rem;
+            margin: 0 auto;
+        }
+
+        .menu-item {
+            position: relative;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            aspect-ratio: 1;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(0, 191, 255, 0) 0%,
+                rgba(0, 191, 255, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-item:hover::before {
+            opacity: 1;
+        }
+
+        .menu-item img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+            border-bottom: 3px solid #0078d4;
+        }
+
+        .menu-item:hover img {
+            transform: scale(1.1);
+            border-bottom: 3px solid #00bfff;
+        }
+
+        .menu-item a {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+        }
+
+        .game-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item:hover .game-info {
+            transform: translateY(0);
+        }
+
+        .game-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .game-icon {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #00bfff;
+            stroke-width: 2;
+        }
+
+        .treasure-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            z-index: 1000;
+            min-width: 300px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .treasure-popup h2 {
+            text-align: center;
+            color: #00ffcc;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .treasure-popup .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .treasure-popup .close-btn:hover {
+            color: #fff;
+        }
+
+        .vault-balance {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .vault-balance-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .vault-balance-amount {
+            color: #00ffcc;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .treasure-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .treasure-input label {
+            color: #888;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .treasure-input input {
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .treasure-input input:focus {
+            outline: none;
+            border-color: #00ffcc;
+            box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.2);
+        }
+
+        .treasure-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .treasure-actions button {
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #1a1a1a;
+        }
+
+        .deposit-btn {
+            background: linear-gradient(45deg, #00bfff, #00ffcc);
+        }
+
+        .withdraw-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+        }
+
+        .treasure-actions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .treasure-actions button:active {
+            transform: translateY(0);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 255, 204, 0.9);
+            color: #1a1a1a;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation: notification 3s ease-in-out forwards;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes notification {
+            0% { transform: translate(-50%, -100%); opacity: 0; }
+            10% { transform: translate(-50%, 0); opacity: 1; }
+            90% { transform: translate(-50%, 0); opacity: 1; }
+            100% { transform: translate(-50%, -100%); opacity: 0; }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .menu {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .menu {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .logo {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .menu {
+                grid-template-columns: 1fr;
+            }
+            .treasure-popup {
+                width: 90%;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">SKYBET</div>
+        <div class="subtitle">Premium Gambling Experience</div>
+    </header>
+
+    <div class="balance-container">
+        <div class="balance-display" id="balance-display">Balance: $0.00</div>
+        <svg class="wallet-icon" id="wallet-icon" viewBox="0 0 24 24">
+            <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+            <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+            <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+        </svg>
+    </div>
+
+    <div class="treasure-popup" id="treasure-popup">
+        <button class="close-btn" id="close-treasure">×</button>
+        <h2>
+            <svg class="wallet-icon" viewBox="0 0 24 24">
+                <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path>
+                <path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path>
+                <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path>
+            </svg>
+            Vault
+        </h2>
+        <div class="vault-balance">
+            <div class="vault-balance-label">Vault Balance</div>
+            <div class="vault-balance-amount" id="vault-balance-display">$0.00</div>
+        </div>
+        <div class="treasure-input">
+            <label for="treasure-amount">Amount</label>
+            <input 
+                type="number" 
+                id="treasure-amount" 
+                placeholder="Enter amount" 
+                min="0" 
+                step="0.01"
+            >
+        </div>
+        <div class="treasure-actions">
+            <button class="deposit-btn" id="deposit-btn">Deposit</button>
+            <button class="withdraw-btn" id="withdraw-btn">Withdraw</button>
+        </div>
+    </div>
+
+    <div class="menu">
+        <div class="menu-item">
+            <a href="mines.html">
+                <img src="mines.png" alt="Mines">
+                <div class="game-info">
+                    <div class="game-title">Mines</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                </div>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a href="blackjack.html">
+                <img src="blackjack.png" alt="Blackjack">
+                <div class="game-info">
+                    <div class="game-title">Blackjack</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                </div>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a href="dice.html">
+                <img src="dice.png" alt="Dice">
+                <div class="game-info">
+                    <div class="game-title">Dice</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
+                        <circle cx="7" cy="7" r="1"></circle>
+                        <circle cx="17" cy="7" r="1"></circle>
+                        <circle cx="7" cy="17" r="1"></circle>
+                        <circle cx="17" cy="17" r="1"></circle>
+                    </svg>
+                </div>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a href="crash.html">
+                <img src="crash.png" alt="Crash">
+                <div class="game-info">
+                    <div class="game-title">Crash</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                </div>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a href="towers.html">
+                <img src="towers.png" alt="Towers">
+                <div class="game-info">
+                    <div class="game-title">Towers</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <path d="M2 22h20"></path>
+                        <path d="M7 2h10"></path>
+                        <path d="M7 6h10"></path>
+                        <path d="M7 10h10"></path>
+                        <path d="M7 14h10"></path>
+                    </svg>
+                </div>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a href="limbo.html">
+                <img src="limbo.png" alt="Limbo">
+                <div class="game-info">
+                    <div class="game-title">Limbo</div>
+                    <svg class="game-icon" viewBox="0 0 24 24">
+                        <path d="M12 2v20"></path>
+                        <path d="M2 12h20"></path>
+                    </svg>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize balances
+        let balance = parseFloat(localStorage.getItem('balance')) || 0.00;
+        let vaultBalance = parseFloat(localStorage.getItem('vaultBalance')) || 0.00;
+        
+        // Get DOM elements
+        const balanceDisplay = document.getElementById('balance-display');
+        const vaultBalanceDisplay = document.getElementById('vault-balance-display');
+        const walletIcon = document.getElementById('wallet-icon');
+        const treasurePopup = document.getElementById('treasure-popup');
+        const closeTreasure = document.getElementById('close-treasure');
+        const depositBtn = document.getElementById('deposit-btn');
+        const withdrawBtn = document.getElementById('withdraw-btn');
+        const treasureAmount = document.getElementById('treasure-amount');
+
+        // Format number with thousands separator
+        function formatBalance(number) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(number);
+        }
+
+        // Update balance displays
+        function updateBalances() {
+            balanceDisplay.textContent = `Balance: $${formatBalance(balance)}`;
+            vaultBalanceDisplay.textContent = `$${formatBalance(vaultBalance)}`;
+            localStorage.setItem('balance', balance.toString());
+            localStorage.setItem('vaultBalance', vaultBalance.toString());
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Handle deposit
+        function handleDeposit() {
+            const amount = parseFloat(treasureAmount.value);
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid amount');
+                return;
+            }
+            if (amount > balance) {
+                showNotification('Insufficient balance');
+                return;
+            }
+
+            balance -= amount;
+            vaultBalance += amount;
+            updateBalances();
+            showNotification(`$${formatBalance(amount)} deposited to vault!`);
+            treasurePopup.style.display = 'none';
+            treasureAmount.value = '';
+        }
+
+        // Handle withdraw
+        function handleWithdraw() {
+            const amount = parseFloat(treasureAmount.value);
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid amount');
+                return;
+            }
+            if (amount > vaultBalance) {
+                showNotification('Insufficient vault balance');
+                return;
+            }
+
+            balance += amount;
+            vaultBalance -= amount;
+            updateBalances();
+            showNotification(`$${formatBalance(amount)} withdrawn from vault!`);
+            treasurePopup.style.display = 'none';
+            treasureAmount.value = '';
+        }
+
+        // Event Listeners
+        walletIcon.addEventListener('click', () => {
+            treasurePopup.style.display = 'flex';
+            treasureAmount.value = '';
+            treasureAmount.focus();
+        });
+
+        closeTreasure.addEventListener('click', () => {
+            treasurePopup.style.display = 'none';
+        });
+
+        depositBtn.addEventListener('click', handleDeposit);
+        withdrawBtn.addEventListener('click', handleWithdraw);
+
+        treasureAmount.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                depositBtn.click();
+            }
+        });
+
+        // Close popup when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === treasurePopup) {
+                treasurePopup.style.display = 'none';
+            }
+        });
+
+        // Initialize balance displays
+        updateBalances();
+
+        // Admin mode (press * to add funds)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '*') {
+                const amount = parseFloat(prompt('Enter amount to add:'));
+                if (amount && amount > 0) {
+                    balance += amount;
+                    updateBalances();
+                    showNotification(`$${formatBalance(amount)} added to balance!`);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

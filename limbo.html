@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crash Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            font-family: system-ui, -apple-system, sans-serif;
+            color: white;
+            display: flex;
+            padding: 20px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .game-layout {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-top: 60px;
+        }
+
+        .left-panel {
+            width: 320px;
+            background: rgba(30, 38, 48, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            height: fit-content;
+            flex-shrink: 0;
+        }
+
+        .main-game {
+            flex: 1;
+            background: rgba(30, 38, 48, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            min-height: 600px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .mode-switch {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .mode-button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            color: #94a3b8;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .mode-button.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .balance-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .balance-label {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .balance-amount {
+            color: #10b981;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .bet-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .input-container::after {
+            content: "₿";
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d3748;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+        }
+
+        .multiplier-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .multiplier-button {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d3748;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .multiplier-button:hover {
+            border-color: #10b981;
+            transform: translateY(-1px);
+        }
+
+        .auto-controls {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .auto-controls.visible {
+            display: flex;
+            max-height: 1000px;
+        }
+
+        .control-group {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .reset-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .reset-button {
+            width: 100%;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .reset-button.active {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .input-group span {
+            color: #94a3b8;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .input-group input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .result-display {
+            font-size: 120px;
+            font-weight: bold;
+            font-family: monospace;
+            transition: color 0.3s ease;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .result-display.win {
+            color: #10b981;
+            animation: pulse 1s ease-in-out;
+        }
+
+        .result-display.lose {
+            color: #ef4444;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .target-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: auto;
+        }
+
+        .target-section.auto-mode {
+            display: none;
+        }
+
+        .target-input, .win-chance {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .bet-button {
+            width: 100%;
+            padding: 16px;
+            background: #10b981;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .bet-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .bet-button:not(:disabled):hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .settings-wheel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #94a3b8;
+            display: none;
+        }
+
+        .settings-wheel:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: rotate(45deg);
+        }
+
+        .settings-wheel.active {
+            background: #10b981;
+            color: white;
+        }
+
+        .auto-settings-panel {
+            display: none;
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(30, 38, 48, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            width: 300px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .auto-settings-panel.visible {
+            display: block;
+        }
+
+        .delay-control {
+            margin-bottom: 20px;
+        }
+
+        .delay-control input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .instant-bet {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instant-bet input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+        }
+
+        .instant-bet label {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        @media (max-width: 1024px) {
+            .game-layout {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                width: 100%;
+            }
+
+            .main-game {
+                min-height: 400px;
+            }
+
+            .result-display {
+                font-size: 72px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='menu.html'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Menu
+    </button>
+
+    <div class="game-layout">
+        <div class="left-panel">
+            <div class="mode-switch">
+                <button class="mode-button active" data-mode="manual">Manual</button>
+                <button class="mode-button" data-mode="auto">Auto</button>
+            </div>
+
+            <div class="balance-display">
+                <div class="balance-label">Balance</div>
+                <div class="balance-amount" id="balance-display">$0.00</div>
+            </div>
+
+            <div class="bet-section">
+                <div class="label">Bet Amount</div>
+                <div class="input-container">
+                    <input type="number" id="betAmount" value="0.00" step="0.01" min="0">
+                </div>
+                <div class="multiplier-buttons">
+                    <button class="multiplier-button" onclick="handleBetAmountChange(0.5)">½</button>
+                    <button class="multiplier-button" onclick="handleBetAmountChange(2)">2×</button>
+                    <button class="multiplier-button" onclick="handleBetAmountChange('max')">Max</button>
+                </div>
+            </div>
+
+            <div class="auto-controls">
+                <div class="control-group">
+                    <div class="label">On Win</div>
+                    <div class="reset-group">
+                        <button id="winReset" class="reset-button">Reset to Base</button>
+                        <div class="input-group">
+                            <span>Increase by:</span>
+                            <input type="number" id="winIncrease" value="0" min="0">
+                            <span>%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="label">On Loss</div>
+                    <div class="reset-group">
+                        <button id="lossReset" class="reset-button">Reset to Base</button>
+                        <div class="input-group">
+                            <span>Increase by:</span>
+                            <input type="number" id="lossIncrease" value="0" min="0">
+                            <span>%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="label">Stop on Profit</div>
+                    <input type="number" id="stopProfit" value="0" step="0.01" min="0">
+                </div>
+
+                <div class="control-group">
+                    <div class="label">Stop on Loss</div>
+                    <input type="number" id="stopLoss" value="0" step="0.01" min="0">
+                </div>
+            </div>
+
+            <button class="bet-button" id="betButton">Place Bet</button>
+        </div>
+
+        <div class="main-game">
+            <div class="game-container">
+                <div class="result-display" id="result-display">1.00×</div>
+                
+                <button class="settings-wheel" id="settings-wheel">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+                    </svg>
+                </button>
+
+                <div class="auto-settings-panel" id="auto-settings-panel">
+                    <div class="delay-control">
+                        <div class="label">Auto Delay (ms)</div>
+                        <input type="range" id="autoDelay" min="1" max="1000" value="100" step="1">
+                        <div class="input-group">
+                            <input type="number" id="autoDelayNumber" value="100" min="1" max="1000">
+                            <span>ms</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="label">Auto Cashout At</div>
+                        <input type="number" id="autoCashout" value="2.00" step="0.01" min="1.01">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="label">Number of Bets (0 for ∞)</div>
+                        <input type="number" id="numBets" value="0" min="0">
+                    </div>
+
+                    <div class="instant-bet">
+                        <input type="checkbox" id="instantBet">
+                        <label for="instantBet">Instant Bet (No Animation)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="target-section" id="target-section">
+                <div class="target-input">
+                    <div class="label">Target Multiplier</div>
+                    <input type="number" id="targetMultiplier" value="2.00" step="0.01" min="1.01">
+                </div>
+                <div class="win-chance">
+                    <div class="label">Win Chance</div>
+                    <input type="number" id="winChance" value="48.50" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balance = parseFloat(localStorage.getItem('balance')) || 0.00;
+        const balanceDisplay = document.getElementById('balance-display');
+        const resultDisplay = document.getElementById('result-display');
+        const betButton = document.getElementById('betButton');
+        const targetInput = document.getElementById('targetMultiplier');
+        const betInput = document.getElementById('betAmount');
+        const winChanceInput = document.getElementById('winChance');
+        let isPlaying = false;
+        let animationFrame;
+        let startTime;
+        let finalMultiplier;
+        let autoRunning = false;
+        let currentMode = 'manual';
+        let initialBet = 0;
+        let betCount = 0;
+        let startBalance = balance;
+        let settingsVisible = false;
+
+        function updateBalanceDisplay() {
+            balanceDisplay.textContent = `$${balance.toFixed(2)}`;
+            localStorage.setItem('balance', balance.toFixed(2));
+        }
+
+        function generateFinalMultiplier() {
+            const r = Math.random();
+            const calculatedMultiplier = Math.max(1.00, 0.97 / r);
+            return Math.round(calculatedMultiplier * 100) / 100;
+        }
+
+        function easeInOutQuad(x) {
+            return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+        }
+
+        function updateMultiplier(timestamp) {
+            if (!startTime) {
+                startTime = timestamp;
+                finalMultiplier = generateFinalMultiplier();
+            }
+            
+            const progress = (timestamp - startTime) / 3000;
+
+            if (progress < 1) {
+                const currentValue = 1 + (parseFloat(finalMultiplier) - 1) * easeInOutQuad(progress);
+                resultDisplay.textContent = currentValue.toFixed(2) + '×';
+                animationFrame = requestAnimationFrame(updateMultiplier);
+            } else {
+                resultDisplay.textContent = finalMultiplier.toFixed(2) + '×';
+                stopGame();
+
+                const betAmount = parseFloat(betInput.value);
+                const targetMultiplier = currentMode === 'auto' ? 
+                    parseFloat(document.getElementById('autoCashout').value) : 
+                    parseFloat(targetInput.value);
+                
+                if (parseFloat(finalMultiplier) >= targetMultiplier) {
+                    resultDisplay.classList.add('win');
+                    balance += betAmount * (targetMultiplier - 1);
+                } else {
+                    resultDisplay.classList.add('lose');
+                    balance -= betAmount;
+                }
+                updateBalanceDisplay();
+
+                if (currentMode === 'auto' && autoRunning) {
+                    handleAutoGameResult(parseFloat(finalMultiplier) >= targetMultiplier);
+                }
+            }
+        }
+
+        function startGame() {
+            if (isPlaying) return;
+            
+            const betAmount = parseFloat(betInput.value);
+            const targetMultiplier = currentMode === 'auto' ? 
+                parseFloat(document.getElementById('autoCashout').value) : 
+                parseFloat(targetInput.value);
+
+            if (betAmount <= 0 || betAmount > balance) {
+                alert('Invalid bet amount or insufficient balance');
+                return;
+            }
+
+            isPlaying = true;
+            betButton.disabled = true;
+            startTime = null;
+            finalMultiplier = null;
+            resultDisplay.classList.remove('win', 'lose');
+            
+            if (currentMode === 'auto' && document.getElementById('instantBet').checked) {
+                finalMultiplier = generateFinalMultiplier();
+                resultDisplay.textContent = finalMultiplier.toFixed(2) + '×';
+                stopGame();
+
+                const betAmount = parseFloat(betInput.value);
+                if (parseFloat(finalMultiplier) >= targetMultiplier) {
+                    resultDisplay.classList.add('win');
+                    balance += betAmount * (targetMultiplier - 1);
+                } else {
+                    resultDisplay.classList.add('lose');
+                    balance -= betAmount;
+                }
+                updateBalanceDisplay();
+
+                if (autoRunning) {
+                    handleAutoGameResult(parseFloat(finalMultiplier) >= targetMultiplier);
+                }
+            } else {
+                animationFrame = requestAnimationFrame(updateMultiplier);
+            }
+        }
+
+        function stopGame() {
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+            isPlaying = false;
+            betButton.disabled = false;
+        }
+
+        function updateWinChance() {
+            const target = currentMode === 'auto' ? 
+                parseFloat(document.getElementById('autoCashout').value) : 
+                parseFloat(targetInput.value);
+            const probability = (0.97 / target) * 100;
+            const formattedProbability = probability.toFixed(2);
+            winChanceInput.value = formattedProbability;
+        }
+
+        function handleBetAmountChange(multiplier) {
+            const currentValue = parseFloat(betInput.value) || 0;
+            let newAmount;
+            
+            if (multiplier === 'max') {
+                newAmount = balance;
+            } else {
+                newAmount = currentValue * multiplier;
+            }
+
+            betInput.value = Math.min(balance, Math.max(0, newAmount)).toFixed(2);
+        }
+
+        function startAutoMode() {
+            if (!autoRunning) {
+                const betAmount = parseFloat(betInput.value);
+                if (betAmount <= 0 || betAmount > balance) {
+                    alert('Invalid bet amount or insufficient balance');
+                    return;
+                }
+                
+                autoRunning = true;
+                initialBet = betAmount;
+                betCount = 0;
+                startBalance = balance;
+                betButton.textContent = 'Stop Auto';
+                startGame();
+            } else {
+                stopAutoMode();
+            }
+        }
+
+        function stopAutoMode() {
+            autoRunning = false;
+            betButton.textContent = 'Start Auto';
+        }
+
+        function handleAutoGameResult(isWin) {
+            const winReset = document.getElementById('winReset').classList.contains('active');
+            const lossReset = document.getElementById('lossReset').classList.contains('active');
+            const winIncrease = parseFloat(document.getElementById('winIncrease').value);
+            const lossIncrease = parseFloat(document.getElementById('lossIncrease').value);
+            const currentBet = parseFloat(betInput.value);
+            const autoDelay = parseInt(autoDelayRange.value);
+
+            if (isWin) {
+                if (winReset) {
+                    betInput.value = initialBet.toFixed(2);
+                } else {
+                    const newBet = currentBet * (1 + (winIncrease / 100));
+                    betInput.value = Math.min(balance, newBet).toFixed(2);
+                }
+            } else {
+                if (lossReset) {
+                    betInput.value = initialBet.toFixed(2);
+                } else {
+                    const newBet = currentBet * (1 + (lossIncrease / 100));
+                    betInput.value = Math.min(balance, newBet).toFixed(2);
+                }
+            }
+
+            betCount++;
+            setTimeout(() => {
+                if (shouldContinueAutoGame()) {
+                    startGame();
+                } else {
+                    stopAutoMode();
+                }
+            }, autoDelay);
+        }
+
+        function shouldContinueAutoGame() {
+            if (!autoRunning) return false;
+
+            const numBets = parseInt(document.getElementById('numBets').value);
+            const stopProfit = parseFloat(document.getElementById('stopProfit').value);
+            const stopLoss = parseFloat(document.getElementById('stopLoss').value);
+            const currentBet = parseFloat(betInput.value);
+            const profit = balance - startBalance;
+
+            if (currentBet > balance) {
+                alert('Insufficient balance to continue auto mode');
+                return false;
+            }
+
+            if (numBets > 0 && betCount >= numBets) {
+                alert('Reached maximum number of bets');
+                return false;
+            }
+
+            if (stopProfit > 0 && profit >= stopProfit) {
+                alert('Reached profit target');
+                return false;
+            }
+
+            if (stopLoss > 0 && profit <= -stopLoss) {
+                alert('Reached loss limit');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Mode switching
+        document.querySelectorAll('.mode-button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (isPlaying) return;
+
+                const mode = button.dataset.mode;
+                currentMode = mode;
+                document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                document.querySelector('.auto-controls').classList.toggle('visible', mode === 'auto');
+                document.getElementById('target-section').classList.toggle('auto-mode', mode === 'auto');
+                document.getElementById('settings-wheel').style.display = mode === 'auto' ? 'block' : 'none';
+                
+                betButton.textContent = mode === 'manual' ? 'Place Bet' : 'Start Auto';
+            });
+        });
+
+        // Settings wheel functionality
+        const settingsWheel = document.getElementById('settings-wheel');
+        const autoSettingsPanel = document.getElementById('auto-settings-panel');
+
+        settingsWheel.addEventListener('click', () => {
+            settingsVisible = !settingsVisible;
+            settingsWheel.classList.toggle('active', settingsVisible);
+            autoSettingsPanel.classList.toggle('visible', settingsVisible);
+        });
+
+        // Auto delay control
+        const autoDelayRange = document.getElementById('autoDelay');
+        const autoDelayNumber = document.getElementById('autoDelayNumber');
+
+        autoDelayRange.addEventListener('input', () => {
+            autoDelayNumber.value = autoDelayRange.value;
+        });
+
+        autoDelayNumber.addEventListener('input', () => {
+            const value = Math.min(1000, Math.max(1, parseInt(autoDelayNumber.value) || 1));
+            autoDelayNumber.value = value;
+            autoDelayRange.value = value;
+        });
+
+        // Reset buttons functionality
+        document.getElementById('winReset').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('winIncrease').disabled = this.classList.contains('active');
+        });
+
+        document.getElementById('lossReset').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('lossIncrease').disabled = this.classList.contains('active');
+        });
+
+        // Event Listeners
+        betButton.addEventListener('click', () => {
+            if (currentMode === 'auto') {
+                startAutoMode();
+            } else {
+                startGame();
+            }
+        });
+
+        targetInput.addEventListener('input', updateWinChance);
+        document.getElementById('autoCashout').addEventListener('input', updateWinChance);
+
+        // Initialize
+        updateBalanceDisplay();
+        updateWinChance ();
+        document.getElementById('settings-wheel').style.display = 'none';
+    </script>
+</body>
+</html>

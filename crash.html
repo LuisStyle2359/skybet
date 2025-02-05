@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crash Game</title>
+    <style>
+        :root {
+            --bg-primary: #0f1923;
+            --bg-secondary: #1a242d;
+            --bg-tertiary: #242f39;
+            --accent-primary: #00e701;
+            --accent-hover: #00ff01;
+            --success: #00e701;
+            --danger: #ff4747;
+            --text-primary: #ffffff;
+            --text-secondary: #7f8c98;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .back-button:hover {
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .game-container {
+            max-width: 64rem;
+            margin: 4rem auto 0;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 18rem 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls-panel {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .game-panel {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            position: relative;
+            overflow: hidden;
+            min-height: 24rem;
+            perspective: 1000px;
+        }
+
+        .balance-display {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .balance-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .balance-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .bet-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .bet-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .quick-bet-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-bet-button {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .quick-bet-button:hover:not(:disabled) {
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .quick-bet-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .bet-input {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .bet-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .bet-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .auto-cashout-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .auto-cashout-input {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .auto-cashout-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .auto-cashout-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button {
+            padding: 0.875rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+        }
+
+        .button-primary {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+        }
+
+        .button-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .button-danger {
+            background: var(--danger);
+            color: var(--text-primary);
+        }
+
+        .button-danger:hover:not(:disabled) {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .multiplier-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .multiplier-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            line-height: 1;
+        }
+
+        .multiplier-value.crash {
+            color: var(--danger);
+            animation: crash-shake 0.5s ease-in-out;
+        }
+
+        .potential-win {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .rocket {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 48px;
+            height: 48px;
+            transition: all 0.05s ease-out;
+            z-index: 2;
+        }
+
+        .crash-line {
+            display: none;
+        }
+
+        .result-message {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .result-message.show {
+            opacity: 1;
+        }
+
+        .result-message.win {
+            background: var(--success);
+            color: var(--bg-primary);
+        }
+
+        .result-message.lose {
+            background: var(--danger);
+            color: var(--text-primary);
+        }
+
+        .recent-crashes {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .crash-point {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 3.5rem;
+            text-align: center;
+        }
+
+        .crash-point.high {
+            background: var(--success);
+            color: var(--bg-primary);
+        }
+
+        .crash-point.medium {
+            background: #ffd700;
+            color: var(--bg-primary);
+        }
+
+        .crash-point.low {
+            background: var(--danger);
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 1024px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                max-width: 36rem;
+            }
+
+            .controls-panel {
+                order: 2;
+            }
+
+            .game-panel {
+                order: 1;
+            }
+
+            .recent-crashes {
+                top: auto;
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+
+        @keyframes crash-shake {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            25% { transform: translate(-52%, -48%) rotate(-5deg); }
+            50% { transform: translate(-48%, -52%) rotate(5deg); }
+            75% { transform: translate(-51%, -49%) rotate(-3deg); }
+            100% { transform: translate(-50%, -50%) rotate(0deg); }
+        }
+    </style>
+</head>
+<body>
+    <a href="menu.html" class="back-button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Menu
+    </a>
+
+    <div class="game-container">
+        <div class="controls-panel">
+            <div class="balance-display">
+                <div class="balance-label">Balance</div>
+                <div class="balance-value" id="balance">$1000.00</div>
+            </div>
+
+            <div class="bet-controls">
+                <div class="bet-label">Bet Amount</div>
+                <div class="quick-bet-buttons">
+                    <button class="quick-bet-button" data-action="half">1/2</button>
+                    <button class="quick-bet-button" data-action="double">2x</button>
+                    <button class="quick-bet-button" data-action="min">MIN</button>
+                    <button class="quick-bet-button" data-action="max">MAX</button>
+                </div>
+                <input type="number" id="bet-amount" class="bet-input" value="1.00" min="0.01" step="0.01">
+                <div class="auto-cashout-container">
+                    <input type="number" id="auto-cashout" class="auto-cashout-input" value="" min="1.01" step="0.01" placeholder="Auto cashout at">
+                    <span class="text-sm text-secondary">Auto</span>
+                </div>
+            </div>
+
+            <button id="start-button" class="button button-primary">Place Bet</button>
+            <button id="cashout-button" class="button button-danger" disabled>Cash Out</button>
+        </div>
+
+        <div class="game-panel">
+            <div class="recent-crashes" id="recent-crashes"></div>
+
+            <div class="multiplier-display">
+                <div class="multiplier-value" id="multiplier">1.00x</div>
+                <div class="potential-win" id="potential-win"></div>
+            </div>
+
+            <div class="crash-line" id="crash-line"></div>
+
+            <div class="rocket" id="rocket">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 44V32M16 44V36M32 44V36" stroke="#ff4747" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M24 4L12 28H36L24 4Z" fill="#ffffff" stroke="#00e701" stroke-width="2"/>
+                </svg>
+            </div>
+
+            <div class="result-message" id="result-message"></div>
+        </div>
+    </div>
+
+    <script>
+        class CrashGame {
+            constructor() {
+                this.balance = parseFloat(localStorage.getItem('balance')) || 1000.00;
+                this.betAmount = 1.00;
+                this.multiplier = 1.00;
+                this.isRunning = false;
+                this.hasCashedOut = false;
+                this.crashPoint = 1.00;
+                this.gameInterval = null;
+                this.recentCrashes = JSON.parse(localStorage.getItem('recentCrashes')) || [];
+                this.lastUpdateTime = 0;
+                this.currentMultiplier = 1.00;
+
+                // DOM Elements
+                this.elements = {
+                    balance: document.getElementById('balance'),
+                    betInput: document.getElementById('bet-amount'),
+                    autoCashoutInput: document.getElementById('auto-cashout'),
+                    startButton: document.getElementById('start-button'),
+                    cashoutButton: document.getElementById('cashout-button'),
+                    multiplierDisplay: document.getElementById('multiplier'),
+                    potentialWin: document.getElementById('potential-win'),
+                    resultMessage: document.getElementById('result-message'),
+                    rocket: document.getElementById('rocket'),
+                    crashLine: document.getElementById('crash-line'),
+                    recentCrashes: document.getElementById('recent-crashes'),
+                    quickBetButtons: document.querySelectorAll('.quick-bet-button')
+                };
+
+                // Set initial auto cashout value to empty
+                this.elements.autoCashoutInput.value = '';
+
+                this.initializeEventListeners();
+                this.updateBalanceDisplay();
+                this.updateRecentCrashes();
+            }
+
+            initializeEventListeners() {
+                this.elements.startButton.addEventListener('click', () => this.startGame());
+                this.elements.cashoutButton.addEventListener('click', () => this.cashout());
+                this.elements.betInput.addEventListener('change', () => this.validateBetAmount());
+                this.elements.quickBetButtons.forEach(button => {
+                    button.addEventListener('click', (e) => this.handleQuickBet(e.target.dataset.action));
+                });
+            }
+
+            updateBalanceDisplay() {
+                this.elements.balance.textContent = `$${this.balance.toFixed(2)}`;
+                localStorage.setItem('balance', this.balance.toFixed(2));
+            }
+
+            validateBetAmount() {
+                const value = parseFloat(this.elements.betInput.value);
+                this.betAmount = Math.max(0.01, Math.min(this.balance, value));
+                this.elements.betInput.value = this.betAmount.toFixed(2);
+            }
+
+            handleQuickBet(action) {
+                if (this.isRunning) return;
+
+                switch(action) {
+                    case 'half':
+                        this.betAmount = Math.max(0.01, this.betAmount / 2);
+                        break;
+                    case 'double':
+                        this.betAmount = Math.min(this.balance, this.betAmount * 2);
+                        break;
+                    case 'min':
+                        this.betAmount = 0.01;
+                        break;
+                    case 'max':
+                        this.betAmount = Math.min(this.balance, 100);
+                        break;
+                }
+                this.elements.betInput.value = this.betAmount.toFixed(2);
+            }
+
+            generateCrashPoint() {
+                const random = Math.random();
+                if (random < 0.11) return 1.00;
+                if (random < 0.66) return Number((1.10 + Math.random() * 1.90).toFixed(2));
+                if (random < 0.94) return Number((3.00 + Math.random() * 4.00).toFixed(2));
+                return Number((7.00 + Math.random() * 33.00).toFixed(2));
+            }
+
+            updateRecentCrashes() {
+                this.elements.recentCrashes.innerHTML = '';
+                this.recentCrashes.slice(-5).forEach(crash => {
+                    const crashElement = document.createElement('div');
+                    crashElement.textContent = `${crash.toFixed(2)}x`;
+                    crashElement.className = `crash-point ${
+                        crash >= 10 ? 'high' : crash >= 3 ? 'medium' : 'low'
+                    }`;
+                    this.elements.recentCrashes.appendChild(crashElement);
+                });
+            }
+
+            addRecentCrash(crash) {
+                this.recentCrashes.push(crash);
+                if (this.recentCrashes.length > 10) {
+                    this.recentCrashes.shift();
+                }
+                localStorage.setItem('recentCrashes', JSON.stringify(this.recentCrashes));
+                this.updateRecentCrashes();
+            }
+
+            showResult(message, type) {
+                this.elements.resultMessage.textContent = message;
+                this.elements.resultMessage.className = `result-message show ${type}`;
+                setTimeout(() => {
+                    this.elements.resultMessage.className = 'result-message';
+                }, 3000);
+            }
+
+            updateRocket() {
+                const maxHeight = 80;
+                const heightPercentage = Math.min(maxHeight, 10 + Math.log(this.currentMultiplier) * 20);
+                const angle = Math.min(45, (Math.log(this.currentMultiplier) * 20) * 0.5);
+                
+                this.elements.rocket.style.bottom = `${heightPercentage}%`;
+                this.elements.rocket.style.transform = `translateX(-50%) rotate(-${angle}deg)`;
+                this.elements.crashLine.style.width = `${(heightPercentage - 10) * 1.5}%`;
+            }
+
+            checkAutoCashout() {
+                const autoCashoutValue = parseFloat(this.elements.autoCashoutInput.value);
+                if (!isNaN(autoCashoutValue) && this.currentMultiplier >= autoCashoutValue) {
+                    this.cashout();
+                }
+            }
+
+            startGame() {
+                if (this.isRunning) return;
+                
+                this.validateBetAmount();
+                if (this.betAmount <= 0 || this.betAmount > this.balance) {
+                    this.showResult('Please enter a valid bet amount', 'lose');
+                    return;
+                }
+
+                this.isRunning = true;
+                this.hasCashedOut = false;
+                this.multiplier = 1.00;
+                this.currentMultiplier = 1.00;
+                this.crashPoint = this.generateCrashPoint();
+                this.lastUpdateTime = performance.now();
+
+                this.elements.multiplierDisplay.classList.remove('crash');
+                this.elements.startButton.disabled = true;
+                this.elements.cashoutButton.disabled = false;
+                this.elements.betInput.disabled = true;
+                this.elements.autoCashoutInput.disabled = true;
+                this.elements.quickBetButtons.forEach(btn => btn.disabled = true);
+                this.elements.crashLine.classList.add('show');
+
+                this.gameInterval = requestAnimationFrame(this.updateGame.bind(this));
+            }
+
+            updateGame(currentTime) {
+                if (!this.isRunning) return;
+
+                const deltaTime = currentTime - this.lastUpdateTime;
+                this.lastUpdateTime = currentTime;
+
+                let speedMultiplier;
+                if (this.currentMultiplier <= 2.5) {
+                    speedMultiplier = 0.15;
+                } else {
+                    speedMultiplier = 0.15 + Math.pow((this.currentMultiplier - 2.5) * 0.05, 1.5);
+                }
+                
+                const increase = (deltaTime / 1000) * speedMultiplier;
+                this.currentMultiplier += increase;
+
+                const displayMultiplier = Math.floor(this.currentMultiplier * 100) / 100;
+                this.multiplier = displayMultiplier;
+                this.elements.multiplierDisplay.textContent = `${displayMultiplier.toFixed(2)}x`;
+                
+                const potentialWin = this.betAmount * displayMultiplier;
+                this.elements.potentialWin.textContent = `Potential win: $${potentialWin.toFixed(2)}`;
+                
+                this.updateRocket();
+                this.checkAutoCashout();
+
+                if (this.currentMultiplier >= this.crashPoint) {
+                    this.endGame();
+                } else {
+                    this.gameInterval = requestAnimationFrame(this.updateGame.bind(this));
+                }
+            }
+
+            cashout() {
+                if (!this.isRunning || this.hasCashedOut) return;
+
+                const cashoutMultiplier = Math.floor(this.currentMultiplier * 100) / 100;
+                const winnings = this.betAmount * cashoutMultiplier;
+                
+                this.balance += winnings;
+                this.hasCashedOut = true;
+                this.elements.cashoutButton.disabled = true;
+                this.elements.potentialWin.textContent = '';
+                this.updateBalanceDisplay();
+                this.showResult(`Cashed out at ${cashoutMultiplier.toFixed(2)}x (+$${winnings.toFixed(2)})`, 'win');
+            }
+
+            endGame() {
+                if (this.gameInterval) {
+                    cancelAnimationFrame(this.gameInterval);
+                }
+                
+                this.isRunning = false;
+                this.elements.multiplierDisplay.classList.add('crash');
+                this.elements.startButton.disabled = false;
+                this.elements.cashoutButton.disabled = true;
+                this.elements.betInput.disabled = false;
+                this.elements.autoCashoutInput.disabled = false;
+                this.elements.quickBetButtons.forEach(btn => btn.disabled = false);
+                this.elements.crashLine.classList.add('show');
+
+                if (!this.hasCashedOut) {
+                    this.balance -= this.betAmount;
+                    this.updateBalanceDisplay();
+                    this.showResult(`Crashed at ${this.multiplier.toFixed(2)}x`, 'lose');
+                }
+
+                this.addRecentCrash(this.crashPoint);
+                this.elements.potentialWin.textContent = '';
+                
+                setTimeout(() => {
+                    this.elements.multiplierDisplay.classList.remove('crash');
+                    this.elements.crashLine.classList.remove('show');
+                }, 1000);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            new CrashGame();
+        });
+    </script>
+</body>
+</html>
