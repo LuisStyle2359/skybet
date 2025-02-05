@@ -242,13 +242,10 @@
             padding: 1rem;
             overflow-y: auto;
             min-height: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
         }
 
         .message {
-            margin-bottom: 0.5rem;
+            margin-bottom: 15px;
             opacity: 0;
             transform: translateY(20px);
             animation: messageIn 0.3s forwards;
@@ -471,6 +468,7 @@
     <header>
         <div class="header-content">
             <div class="logo-container">
+                <img src="skybet.png" alt="Skybet" class="logo-img">
                 <div class="logo-text">
                     <div class="logo-title">SKYBET</div>
                     <div class="logo-subtitle">Premium Gambling Experience</div>
@@ -490,15 +488,15 @@
         <div class="chat-container">
             <div class="chat-header">
                 <h2>Live Chat</h2>
-                <span class="online-count" id="online-count">0 online</span>
+                <span class="online-count">0 online</span>
             </div>
             <div class="chat-messages" id="chat-messages">
                 <!-- Messages will be inserted here by JavaScript -->
             </div>
             <div class="chat-input">
                 <form id="chat-form" class="chat-form">
-                    <input type="text" placeholder="Type a message..." id="message-input" disabled>
-                    <button type="submit" id="send-button" disabled>Send</button>
+                    <input type="text" placeholder="Type a message..." id="chat-input" disabled>
+                    <button type="submit" disabled>Send</button>
                 </form>
             </div>
         </div>
@@ -567,29 +565,17 @@
     <script>
         // Game data
         const games = [
-            { title: 'Mines', image: 'https://images.unsplash.com/photo-1518133683791-0b9de5a055f0?auto=format&fit=crop&w=800&q=80', link: 'mines.html' },
-            { title: 'Blackjack', image: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=800&q=80', link: 'blackjack.html' },
-            { title: 'Dice', image: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?auto=format&fit=crop&w=800&q=80', link: 'dice.html' },
-            { title: 'Crash', image: 'https://images.unsplash.com/photo-1579226905180-636b76d96082?auto=format&fit=crop&w=800&q=80', link: 'crash.html' },
-            { title: 'Towers', image: 'https://images.unsplash.com/photo-1495305379050-64540d6ee95d?auto=format&fit=crop&w=800&q=80', link: 'towers.html' },
-            { title: 'Limbo', image: 'https://images.unsplash.com/photo-1533928298208-27ff66555d8d?auto=format&fit=crop&w=800&q=80', link: 'limbo.html' }
+            { title: 'Mines', image: 'mines.png', link: 'mines.html' },
+            { title: 'Blackjack', image: 'blackjack.png', link: 'blackjack.html' },
+            { title: 'Dice', image: 'dice.png', link: 'dice.html' },
+            { title: 'Crash', image: 'crash.png', link: 'crash.html' },
+            { title: 'Towers', image: 'towers.png', link: 'towers.html' },
+            { title: 'Limbo', image: 'limbo.png', link: 'limbo.html' }
         ];
 
-        // WebSocket connection - Using a more reliable WebSocket server
+        // WebSocket connection
         let ws;
-        const WEBSOCKET_URL = 'wss://socketsbay.com/wss/v2/1/demo/';
-        let reconnectAttempts = 0;
-        const MAX_RECONNECT_ATTEMPTS = 5;
-
-        // State management with session persistence
-        const STORAGE_PREFIX = 'skybet_';
-        let currentUser = sessionStorage.getItem(`${STORAGE_PREFIX}currentUser`);
-        let users = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}users`)) || {};
-
-        // Initialize localStorage if empty
-        if (Object.keys(users).length === 0) {
-            localStorage.setItem(`${STORAGE_PREFIX}users`, JSON.stringify({}));
-        }
+        const WEBSOCKET_URL = 'wss://free.blr2.piesocket.com/v3/1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self=1';
 
         function connect() {
             ws = new WebSocket(WEBSOCKET_URL);
@@ -597,53 +583,28 @@
             ws.onopen = () => {
                 console.log('Connected to chat server');
                 showNotification('Connected to chat server');
-                reconnectAttempts = 0;
-                if (currentUser) {
-                    enableChat();
-                    sendSystemMessage('join');
-                }
             };
             
             ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    console.log('Received message:', data);
-                    if (data.type === 'message') {
-                        addMessage(data);
-                    } else if (data.type === 'system') {
-                        if (data.action === 'join' || data.action === 'leave') {
-                            updateOnlineCount(data.onlineCount || 1);
-                        }
-                    }
-                } catch (error) {
-                    // If the message isn't JSON, treat it as a regular message
-                    addMessage({
-                        type: 'message',
-                        content: event.data,
-                        username: 'System',
-                        timestamp: new Date().toISOString()
-                    });
+                const data = JSON.parse(event.data);
+                if (data.type === 'message') {
+                    addMessage(data);
+                } else if (data.type === 'system') {
+                    updateOnlineCount(data.onlineCount);
                 }
             };
             
             ws.onclose = () => {
                 console.log('Disconnected from chat server');
                 showNotification('Disconnected from chat server. Reconnecting...');
-                disableChat();
-                
-                if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                    reconnectAttempts++;
-                    setTimeout(connect, 3000);
-                } else {
-                    showNotification('Could not reconnect to chat server. Please refresh the page.');
-                }
-            };
-
-            ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                showNotification('Connection error occurred');
+                setTimeout(connect, 1000);
             };
         }
+
+        // State management with session persistence
+        const STORAGE_PREFIX = window.location.hostname;
+        let currentUser = sessionStorage.getItem(`${STORAGE_PREFIX}_currentUser`);
+        let users = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}_users`)) || {};
 
         // Initialize games grid
         function initGames() {
@@ -660,10 +621,10 @@
             `).join('');
         }
 
-        // Update auth container with proper localStorage handling
+        // Update auth container
         function updateAuthContainer() {
             const container = document.getElementById('auth-container');
-            if (currentUser && users[currentUser]) {
+            if (currentUser) {
                 container.innerHTML = `
                     <div class="balance-display">
                         <span class="balance-amount">$${users[currentUser].balance.toFixed(2)}</span>
@@ -673,10 +634,7 @@
                         <span>Logout</span>
                     </button>
                 `;
-                const vaultBalance = document.getElementById('vault-balance');
-                if (vaultBalance) {
-                    vaultBalance.textContent = `$${users[currentUser].vaultBalance.toFixed(2)}`;
-                }
+                document.getElementById('vault-balance').textContent = `$${users[currentUser].vaultBalance.toFixed(2)}`;
             } else {
                 container.innerHTML = `
                     <button class="auth-button login-button" onclick="openModal('login-modal')">
@@ -709,7 +667,7 @@
             setTimeout(() => notification.remove(), 3000);
         }
 
-        // Auth handlers with improved localStorage handling
+        // Auth handlers
         function handleRegister(e) {
             e.preventDefault();
             const username = document.getElementById('register-username').value;
@@ -726,7 +684,7 @@
                 balance: 0.10,
                 vaultBalance: 0
             };
-            localStorage.setItem(`${STORAGE_PREFIX}users`, JSON.stringify(users));
+            localStorage.setItem(`${STORAGE_PREFIX}_users`, JSON.stringify(users));
             closeModal('register-modal');
             showNotification('Registration successful! Please login.');
         }
@@ -737,78 +695,64 @@
             const password = document.getElementById('login-password').value;
             const errorElement = document.getElementById('login-error');
 
-            const storedUsers = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}users`)) || {};
-            if (!storedUsers[username] || storedUsers[username].password !== password) {
+            if (!users[username] || users[username].password !== password) {
                 errorElement.textContent = 'Invalid username or password';
                 return;
             }
 
-            users = storedUsers; // Update the users object
             currentUser = username;
-            sessionStorage.setItem(`${STORAGE_PREFIX}currentUser`, currentUser);
+            sessionStorage.setItem(`${STORAGE_PREFIX}_currentUser`, currentUser);
             closeModal('login-modal');
             updateAuthContainer();
             enableChat();
-            connect(); // Reconnect WebSocket after login
+            connect(); // Connect to WebSocket after successful login
             showNotification('Welcome back, ' + username + '!');
         }
 
         function handleLogout() {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                sendSystemMessage('leave');
-                ws.close();
-            }
             currentUser = null;
-            sessionStorage.removeItem(`${STORAGE_PREFIX}currentUser`);
+            sessionStorage.removeItem(`${STORAGE_PREFIX}_currentUser`);
             updateAuthContainer();
             disableChat();
+            if (ws) {
+                ws.close();
+            }
             showNotification('Logged out successfully');
         }
 
         // Chat handlers
         function enableChat() {
-            const input = document.getElementById('message-input');
-            const button = document.getElementById('send-button');
+            const input = document.getElementById('chat-input');
+            const button = document.querySelector('.chat-form button');
             input.disabled = false;
             button.disabled = false;
             input.placeholder = 'Type a message...';
         }
 
         function disableChat() {
-            const input = document.getElementById('message-input');
-            const button = document.getElementById('send-button');
+            const input = document.getElementById('chat-input');
+            const button = document.querySelector('.chat-form button');
             input.disabled = true;
             button.disabled = true;
             input.placeholder = 'Please login to chat';
-        }
-
-        function sendSystemMessage(action) {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'system',
-                    action: action,
-                    username: currentUser
-                }));
-            }
         }
 
         function handleChat(e) {
             e.preventDefault();
             if (!currentUser) return;
 
-            const input = document.getElementById('message-input');
+            const input = document.getElementById('chat-input');
             const message = input.value.trim();
             
             if (message && ws && ws.readyState === WebSocket.OPEN) {
-                const messageData = {
+                const data = {
                     type: 'message',
-                    content: message,
                     username: currentUser,
+                    content: message,
                     timestamp: new Date().toISOString()
                 };
                 
-                ws.send(JSON.stringify(messageData));
-                addMessage(messageData); // Immediately show our own message
+                ws.send(JSON.stringify(data));
                 input.value = '';
             }
         }
@@ -831,7 +775,7 @@
         }
 
         function updateOnlineCount(count) {
-            document.getElementById('online-count').textContent = `${count} online`;
+            document.querySelector('.online-count').textContent = `${count} online`;
         }
 
         function escapeHtml(unsafe) {
@@ -843,21 +787,18 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // Wallet handlers with improved localStorage handling
+        // Wallet handlers
         function handleDeposit() {
             const amount = parseFloat(document.getElementById('amount').value);
             if (!amount || amount <= 0) return;
-            
-            const currentUsers = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}users`));
-            if (amount > currentUsers[currentUser].balance) {
+            if (amount > users[currentUser].balance) {
                 showNotification('Insufficient balance');
                 return;
             }
 
-            currentUsers[currentUser].balance -= amount;
-            currentUsers[currentUser].vaultBalance += amount;
-            localStorage.setItem(`${STORAGE_PREFIX}users`, JSON.stringify(currentUsers));
-            users = currentUsers;
+            users[currentUser].balance -= amount;
+            users[currentUser].vaultBalance += amount;
+            localStorage.setItem(`${STORAGE_PREFIX}_users`, JSON.stringify(users));
             updateAuthContainer();
             document.getElementById('amount').value = '';
             showNotification(`Deposited $${amount.toFixed(2)} to vault`);
@@ -866,17 +807,14 @@
         function handleWithdraw() {
             const amount = parseFloat(document.getElementById('amount').value);
             if (!amount || amount <= 0) return;
-            
-            const currentUsers = JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}users`));
-            if (amount > currentUsers[currentUser].vaultBalance) {
+            if (amount > users[currentUser].vaultBalance) {
                 showNotification('Insufficient vault balance');
                 return;
             }
 
-            currentUsers[currentUser].balance += amount;
-            currentUsers[currentUser].vaultBalance -= amount;
-            localStorage.setItem(`${STORAGE_PREFIX}users`, JSON.stringify(currentUsers));
-            users = currentUsers;
+            users[currentUser].balance += amount;
+            users[currentUser].vaultBalance -= amount;
+            localStorage.setItem(`${STORAGE_PREFIX}_users`, JSON.stringify(users));
             updateAuthContainer();
             document.getElementById('amount').value = '';
             showNotification(`Withdrawn $${amount.toFixed(2)} from vault`);
@@ -888,18 +826,12 @@
         document.getElementById('chat-form').addEventListener('submit', handleChat);
 
         // Initialize
-        initGames();
-        updateAuthContainer();
         if (currentUser) {
+            enableChat();
             connect();
         }
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (ws && currentUser) {
-                sendSystemMessage('leave');
-            }
-        });
+        initGames();
+        updateAuthContainer();
     </script>
 </body>
 </html>
