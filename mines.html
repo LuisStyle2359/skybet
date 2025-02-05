@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mines Game</title>
+    <title>SkyBet Mines Game</title>
     <style>
         :root {
             --primary-bg: #1a2c3a;
@@ -27,48 +27,51 @@
         }
 
         body {
-            background-color: var(--primary-bg);
+            background: linear-gradient(180deg, #1a2c3a 0%, #243b4a 100%);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 12px;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .menu-link {
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a2c3a 0%, #243b4a 100%);
+            z-index: -1;
+        }
+
+        .logo {
             position: absolute;
-            top: 12px;
-            left: 12px;
-            color: var(--text-primary);
-            text-decoration: none;
-            padding: 8px 16px;
-            background: var(--panel-bg);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            font-size: 14px;
+            top: 1rem;
+            left: 1rem;
+            height: 7.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
         }
 
-        .menu-link:hover {
-            background: var(--secondary-bg);
-            transform: translateY(-1px);
+        .logo:hover {
+            transform: scale(1.15);
         }
 
         .game-wrapper {
-            max-width: 100%;
+            max-width: 1400px;
             width: 100%;
-            margin: 50px auto 0;
+            margin: 20px auto;
             display: grid;
             grid-template-columns: 380px 1fr;
             gap: 24px;
             padding: 24px;
             background: var(--secondary-bg);
             border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-            height: calc(100vh - 66px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .left-panel {
@@ -79,27 +82,6 @@
             flex-direction: column;
             gap: 20px;
             height: fit-content;
-            overflow-y: auto;
-            max-height: calc(100vh - 98px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .left-panel::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .left-panel::-webkit-scrollbar-track {
-            background: var(--secondary-bg);
-            border-radius: 4px;
-        }
-
-        .left-panel::-webkit-scrollbar-thumb {
-            background: var(--primary-bg);
-            border-radius: 4px;
-        }
-
-        .left-panel::-webkit-scrollbar-thumb:hover {
-            background: var(--tile-hover);
         }
 
         .mode-switch {
@@ -148,13 +130,13 @@
         .control-group input,
         .control-group select {
             width: 100%;
-            padding: 10px;
+            padding: 8px 12px;
             background: var(--primary-bg);
             border: none;
             border-radius: 6px;
             color: var(--text-primary);
             font-size: 14px;
-            height: 40px;
+            height: 36px;
         }
 
         .quick-bet {
@@ -171,14 +153,12 @@
             color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s;
-            height: 36px;
             font-weight: 500;
         }
 
         .quick-bet button:hover {
             background: var(--panel-bg);
             color: var(--text-primary);
-            transform: translateY(-1px);
         }
 
         .auto-controls {
@@ -194,11 +174,11 @@
         .reset-group {
             display: flex;
             gap: 8px;
-            height: 40px;
+            height: 36px;
         }
 
         .reset-group button {
-            padding: 0 12px;
+            padding: 0 10px;
             background: var(--primary-bg);
             border: none;
             border-radius: 6px;
@@ -206,24 +186,15 @@
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
-            height: 100%;
             font-weight: 500;
-            min-width: 120px;
+            min-width: 100px;
+            font-size: 13px;
         }
 
         .reset-group button.active {
             background: var(--accent-color);
             color: var(--primary-bg);
-        }
-
-        .reset-group button:hover {
-            background: var(--panel-bg);
-            color: var(--text-primary);
-            transform: translateY(-1px);
-        }
-
-        .reset-group button.active:hover {
-            background: var(--hover-color);
+            font-weight: 600;
         }
 
         .reset-group .input-group {
@@ -267,7 +238,6 @@
             transition: all 0.2s;
             height: 48px;
             font-size: 16px;
-            margin-top: 4px;
         }
 
         .play-button:hover:not(:disabled) {
@@ -303,61 +273,59 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 12px;
-            padding: 16px;
+            padding: 20px;
             background: var(--panel-bg);
-            border-radius: 8px;
+            border-radius: 12px;
             height: fit-content;
-            width: min(100%, calc(100vh - 150px));
-            margin: 0 auto;
-            align-self: center;
+            width: 71%;
             aspect-ratio: 1;
         }
 
         .tile {
             aspect-ratio: 1;
-            width: 100%;
-            height: 100%;
             background: var(--tile-bg);
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease-in-out;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: min(4vw, 4vh);
-            background-size: 60% 60%;
-            background-position: center;
-            background-repeat: no-repeat;
+            font-size: 24px;
+            position: relative;
+            border: 2px solid transparent;
+            min-height: 60px;
         }
 
-        .tile:hover:not(.selected):not(.revealed) {
+        .tile:hover:not(.revealed):not(.selected) {
             background: var(--tile-hover);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent-color);
         }
 
         .tile.selected {
             background: var(--accent-color);
+            color: var(--primary-bg);
         }
 
         .tile.revealed.diamond {
-            background-color: var(--accent-color);
-            background-image: url('diamond.png');
+            background: var(--accent-color);
+            color: var(--primary-bg);
         }
 
         .tile.revealed.bomb {
-            background-color: var(--danger);
-            background-image: url('bomb.png');
+            background: var(--danger);
+            color: var(--text-primary);
         }
 
         .tile.shake {
             animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-2px) rotate(-1deg); }
-            75% { transform: translateX(2px) rotate(1deg); }
+        .tile img {
+            width: 60%;
+            height: 60%;
+            object-fit: contain;
+            padding: 6px;
         }
 
         .status {
@@ -378,41 +346,35 @@
             color: var(--text-primary);
         }
 
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px) rotate(-1deg); }
+            75% { transform: translateX(2px) rotate(1deg); }
+        }
+
         @media (max-width: 768px) {
             .game-wrapper {
                 grid-template-columns: 1fr;
-                height: auto;
-                margin: 0;
                 padding: 12px;
                 gap: 12px;
+                margin: 0;
             }
 
             .left-panel {
                 order: 2;
-                max-height: 60vh;
-                overflow-y: auto;
             }
 
             .game-grid {
-                width: min(100%, calc(100vw - 40px));
-                height: auto;
                 order: 1;
-            }
-
-            .tile {
-                font-size: min(6vw, 6vh);
+                padding: 12px;
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <a href="#" class="menu-link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Back to Menu
-    </a>
-
+    <img src="skybet.png" alt="SkyBet Logo" class="logo" onclick="window.location.href='index.html'">
+    
     <div class="game-wrapper">
         <div class="left-panel">
             <div class="mode-switch">
@@ -499,7 +461,7 @@
 
             <div class="info-panel">
                 <div class="label">Balance</div>
-                <div class="value" id="balance">$0.00</div>
+                <div class="value" id="balance">$10.00</div>
             </div>
 
             <div class="info-panel">
@@ -515,27 +477,15 @@
     </div>
 
     <script>
-        // Initialize balance with better error handling
-        let balance = 0.00;
-        try {
-            const savedBalance = localStorage.getItem('balance');
-            if (savedBalance) {
-                const parsed = parseFloat(savedBalance);
-                if (!isNaN(parsed) && parsed > 0) {
-                    balance = parsed;
-                }
-            }
-        } catch (e) {
-            console.error('Error loading balance:', e);
-        }
-
+        let balance = 10.00;
         let gameActive = false;
         let currentMode = 'manual';
-        let initialBet = 1.00;
-        let autoRunning = false;
         let selectedTiles = new Set();
-        let autoInterval = null;
+        let autoRunning = false;
         let currentMultiplier = 1.00;
+        let mines = new Set();
+        let revealedTiles = new Set();
+        let initialBet = 1.00;
         let betCount = 0;
 
         const multipliers = {
@@ -552,19 +502,43 @@
             const tile = document.createElement('div');
             tile.className = 'tile';
             tile.dataset.index = i;
-            tile.addEventListener('click', () => toggleTile(tile));
+            tile.addEventListener('click', () => toggleTile(i));
             gameGrid.appendChild(tile);
         }
 
-        function toggleTile(tile) {
+        // Load saved balance
+        try {
+            const savedBalance = localStorage.getItem('balance');
+            if (savedBalance) {
+                const parsed = parseFloat(savedBalance);
+                if (!isNaN(parsed) && parsed > 0) {
+                    balance = parsed;
+                    updateBalance();
+                }
+            }
+        } catch (e) {
+            console.error('Error loading balance:', e);
+        }
+
+        function toggleTile(index) {
+            if (balance <= 0) {
+                document.getElementById('status').textContent = 'Insufficient balance!';
+                document.getElementById('status').className = 'status lose';
+                return;
+            }
+
+            const tile = document.querySelector(`[data-index="${index}"]`);
+            
             if (!gameActive && currentMode === 'auto') {
                 tile.classList.toggle('selected');
                 if (tile.classList.contains('selected')) {
-                    selectedTiles.add(parseInt(tile.dataset.index));
+                    selectedTiles.add(index);
                 } else {
-                    selectedTiles.delete(parseInt(tile.dataset.index));
+                    selectedTiles.delete(index);
                 }
                 updateMultiplier();
+            } else if (gameActive && currentMode === 'manual') {
+                handleTileClick(index);
             }
         }
 
@@ -574,30 +548,9 @@
             document.getElementById('multiplier').textContent = currentMultiplier.toFixed(2) + 'x';
         }
 
-        // Mode switching
-        document.querySelectorAll('.mode-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const mode = button.dataset.mode;
-                currentMode = mode;
-                document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                document.querySelector('.auto-controls').classList.toggle('visible', mode === 'auto');
-                
-                // Reset game state when switching modes
-                stopAutoGame();
-                gameActive = false;
-                selectedTiles.clear();
-                document.querySelectorAll('.tile').forEach(tile => {
-                    tile.classList.remove('revealed', 'diamond', 'bomb', 'selected');
-                });
-                
-                const playButton = document.getElementById('play-button');
-                playButton.textContent = mode === 'manual' ? 'Bet' : 'Start Autobet';
-                playButton.onclick = startGame;
-            });
-        });
-
         function quickBet(type) {
+            if (balance <= 0) return;
+
             const betInput = document.getElementById('bet-amount');
             const currentBet = parseFloat(betInput.value);
 
@@ -632,284 +585,317 @@
             }
         }
 
-        document.getElementById('bet-amount').addEventListener('input', updateBetDisplay);
-        document.getElementById('stop-profit').addEventListener('input', function() {
-            document.getElementById('profit-display').textContent = parseFloat(this.value || 0).toFixed(2);
-        });
-        document.getElementById('stop-loss').addEventListener('input', function() {
-            document.getElementById('loss-display').textContent = parseFloat(this.value || 0).toFixed(2);
-        });
-
-        // Initialize play button click handler
-        document.getElementById('play-button').onclick = startGame;
-
         async function startGame() {
+            if (balance <= 0) {
+                document.getElementById('status').textContent = 'Insufficient balance!';
+                document.getElementById('status').className = 'status lose';
+                return;
+            }
+
             if (gameActive) {
                 if (currentMode === 'auto' && autoRunning) {
                     stopAutoGame();
                     return;
                 }
-                return; // If manual game is active, don't start a new one
+                return;
             }
 
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             if (isNaN(betAmount) || betAmount <= 0 || betAmount > balance) {
-                document.getElementById('status').textContent = 'Invalid bet amount or insufficient balance!';
+                document.getElementById('status').textContent = 'Invalid bet amount!';
                 document.getElementById('status').className = 'status lose';
                 return;
             }
 
             if (currentMode === 'auto') {
                 if (selectedTiles.size === 0) {
-                    document.getElementById('status').textContent = 'Select tiles for auto mode first!';
+                    document.getElementById('status').textContent = 'Select tiles for auto mode!';
                     document.getElementById('status').className = 'status lose';
                     return;
                 }
-
-                autoRunning = true;
-                initialBet = betAmount;
-                betCount = 0;
-                document.getElementById('play-button').textContent = 'Stop Autobet';
-                runAutoGame();
+                startAutoGame(betAmount);
             } else {
-                // Manual game logic
-                gameActive = true;
-                balance -= betAmount;
-                updateBalance();
-                
-                // Clear previous game state
-                selectedTiles.clear();
-                document.querySelectorAll('.tile').forEach(tile => {
-                    tile.classList.remove('revealed', 'diamond', 'bomb', 'selected');
-                });
-
-                // Generate mine positions
-                const mineCount = parseInt(document.getElementById('mines').value);
-                const mines = new Set();
-                while (mines.size < mineCount) {
-                    mines.add(Math.floor(Math.random() * 25));
-                }
-
-                // Update play button
-                const playButton = document.getElementById('play-button');
-                playButton.textContent = 'Cashout';
-                playButton.onclick = () => cashout(betAmount, mines);
-
-                // Add click handlers to tiles
-                document.querySelectorAll('.tile').forEach(tile => {
-                    const index = parseInt(tile.dataset.index);
-                    tile.onclick = async () => {
-                        if (!gameActive) return;
-
-                        // Add shake animation
-                        tile.classList.add('shake');
-                        await new Promise(resolve => setTimeout(resolve, 300));
-                        tile.classList.remove('shake');
-
-                        if (mines.has(index)) {
-                            // Hit a mine
-                            tile.classList.add('revealed', 'bomb');
-                            gameActive = false;
-
-                            // Show all mines
-                            mines.forEach(mineIndex => {
-                                const mineTile = document.querySelector(`[data-index="${mineIndex}"]`);
-                                mineTile.classList.add('revealed', 'bomb');
-                            });
-
-                            // Update status and button
-                            document.getElementById('status').textContent = `Loss: -$${betAmount.toFixed(2)}`;
-                            document.getElementById('status').className = 'status lose';
-                            playButton.textContent = 'Bet';
-                            playButton.onclick = startGame;
-
-                            // Remove tile click handlers
-                            document.querySelectorAll('.tile').forEach(t => t.onclick = null);
-                        } else {
-                            // Found a diamond
-                            tile.classList.add('revealed', 'diamond');
-                            selectedTiles.add(index);
-                            
-                            // Update multiplier
-                            updateMultiplier();
-                            
-                            // Show potential win
-                            const winAmount = betAmount * currentMultiplier;
-                            document.getElementById('status').textContent = 
-                                `Current win: $${(winAmount - betAmount).toFixed(2)}`;
-                            document.getElementById('status').className = 'status win';
-                        }
-                    };
-                });
+                startManualGame(betAmount);
             }
         }
 
-        function cashout(betAmount, mines) {
+        function startManualGame(betAmount) {
+            gameActive = true;
+            balance -= betAmount;
+            updateBalance();
+
+            // Clear previous game state
+            selectedTiles.clear();
+            mines.clear();
+            revealedTiles.clear();
+            document.querySelectorAll('.tile').forEach(tile => {
+                tile.className = 'tile';
+                tile.innerHTML = '';
+            });
+
+            // Generate mine positions
+            const mineCount = parseInt(document.getElementById('mines').value);
+            while (mines.size < mineCount) {
+                mines.add(Math.floor(Math.random() * 25));
+            }
+
+            // Update play button
+            const playButton = document.getElementById('play-button');
+            playButton.textContent = 'Cashout';
+            document.getElementById('status').textContent = '';
+            document.getElementById('status').className = 'status';
+        }
+
+        async function handleTileClick(index) {
+            if (!gameActive || revealedTiles.has(index)) return;
+
+            const tile = document.querySelector(`[data-index="${index}"]`);
+            tile.classList.add('shake');
+            await new Promise(resolve => setTimeout(resolve, 300));
+            tile.classList.remove('shake');
+
+            revealedTiles.add(index);
+
+            if (mines.has(index)) {
+                // Hit a mine
+                tile.classList.add('revealed', 'bomb');
+                const img = document.createElement('img');
+                img.src = 'bomb.png';
+                img.alt = 'Bomb';
+                tile.innerHTML = '';
+                tile.appendChild(img);
+                
+                gameActive = false;
+
+                // Show all mines
+                mines.forEach(mineIndex => {
+                    const mineTile = document.querySelector(`[data-index="${mineIndex}"]`);
+                    mineTile.classList.add('revealed', 'bomb');
+                    const mineImg = document.createElement('img');
+                    mineImg.src = 'bomb.png';
+                    mineImg.alt = 'Bomb';
+                    mineTile.innerHTML = '';
+                    mineTile.appendChild(mineImg);
+                });
+
+                const betAmount = parseFloat(document.getElementById('bet-amount').value);
+                document.getElementById('status').textContent = `Loss: -$${betAmount.toFixed(2)}`;
+                document.getElementById('status').className = 'status lose';
+                document.getElementById('play-button').textContent = 'Bet';
+            } else {
+                // Found a diamond
+                tile.classList.add('revealed', 'diamond');
+                const img = document.createElement('img');
+                img.src = 'diamond.png';
+                img.alt = 'Diamond';
+                tile.innerHTML = '';
+                tile.appendChild(img);
+                
+                selectedTiles.add(index);
+                updateMultiplier();
+
+                const betAmount = parseFloat(document.getElementById('bet-amount').value);
+                const potentialWin = betAmount * currentMultiplier;
+                document.getElementById('status').textContent = 
+                    `Current win: $${(potentialWin - betAmount).toFixed(2)}`;
+                document.getElementById('status').className = 'status win';
+            }
+        }
+
+        function cashout() {
             if (!gameActive) return;
-            
-            gameActive = false;
+
+            const betAmount = parseFloat(document.getElementById('bet-amount').value);
             const winAmount = betAmount * currentMultiplier;
             balance += winAmount;
             updateBalance();
+
+            gameActive = false;
+            document.getElementById('status').textContent = `Win: +$${(winAmount - betAmount).toFixed(2)}`;
+            document.getElementById('status').className = 'status win';
+            document.getElementById('play-button').textContent = 'Bet';
 
             // Show all mines
             mines.forEach(mineIndex => {
                 const mineTile = document.querySelector(`[data-index="${mineIndex}"]`);
                 mineTile.classList.add('revealed', 'bomb');
+                const img = document.createElement('img');
+                img.src = 'bomb.png';
+                img.alt = 'Bomb';
+                mineTile.innerHTML = '';
+                mineTile.appendChild(img);
             });
-
-            // Update status
-            document.getElementById('status').textContent = 
-                `Win: +$${(winAmount - betAmount).toFixed(2)}`;
-            document.getElementById('status').className = 'status win';
-
-            // Reset button
-            const playButton = document.getElementById('play-button');
-            playButton.textContent = 'Bet';
-            playButton.onclick = startGame;
-
-            // Remove tile click handlers
-            document.querySelectorAll('.tile').forEach(tile => tile.onclick = null);
         }
 
-        async function runAutoGame() {
-            const speed = Math.max(10, parseInt(document.getElementById('auto-speed').value) || 100);
-            const numBets = Math.max(0, parseInt(document.getElementById('num-bets').value) || 0);
-            const stopProfit = Math.max(0, parseFloat(document.getElementById('stop-profit').value) || 0);
-            const stopLoss = Math.max(0, parseFloat(document.getElementById('stop-loss').value) || 0);
-            const winReset = document.getElementById('win-reset').classList.contains('active');
-            const lossReset = document.getElementById('loss-reset').classList.contains('active');
-            const winIncrease = Math.max(0, parseFloat(document.getElementById('win-increase').value) || 0);
-            const lossIncrease = Math.max(0, parseFloat(document.getElementById('loss-increase').value) || 0);
+        async function startAutoGame(betAmount) {
+            if (balance <= 0) {
+                document.getElementById('status').textContent = 'Insufficient balance!';
+                document.getElementById('status').className = 'status lose';
+                return;
+            }
 
-            const runSingleGame = async () => {
+            autoRunning = true;
+            initialBet = betAmount;
+            document.getElementById('play-button').textContent = 'Stop Auto';
+
+            const speed = parseInt(document.getElementById('auto-speed').value);
+            const numBets = parseInt(document.getElementById('num-bets').value);
+            const stopProfit = parseFloat(document.getElementById('stop-profit').value);
+            const stopLoss = parseFloat(document.getElementById('stop-loss').value);
+            const startBalance = balance;
+
+            const runAutoRound = async () => {
                 if (!autoRunning) return;
 
-                try {
-                    const betAmount = parseFloat(document.getElementById('bet-amount').value);
-                    if (isNaN(betAmount) || betAmount <= 0) {
-                        throw new Error('Invalid bet amount');
-                    }
-
-                    if (betAmount > balance) {
-                        document.getElementById('status').textContent = 'Insufficient balance!';
-                        document.getElementById('status').className = 'status lose';
-                        stopAutoGame();
-                        return;
-                    }
-
-                    if (numBets > 0 && betCount >= numBets) {
-                        stopAutoGame();
-                        return;
-                    }
-
-                    // Simulate game round
-                    const bombCount = parseInt(document.getElementById('mines').value);
-                    const totalTiles = 25;
-                    const bombIndices = new Set();
-                    
-                    while (bombIndices.size < bombCount) {
-                        bombIndices.add(Math.floor(Math.random() * totalTiles));
-                    }
-
-                    // Clear previous reveals
-                    document.querySelectorAll('.tile').forEach(tile => {
-                        tile.classList.remove('revealed', 'diamond', 'bomb');
-                    });
-
-                    let hit = false;
-                    balance -= betAmount;
-                    updateBalance();
-                    
-                    // Reveal selected tiles with animation
-                    for (const tileIndex of selectedTiles) {
-                        const tile = document.querySelector(`[data-index="${tileIndex}"]`);
-                        tile.classList.add('shake');
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        tile.classList.remove('shake');
-
-                        if (bombIndices.has(tileIndex)) {
-                            hit = true;
-                            tile.classList.add('revealed', 'bomb');
-                            break;
-                        } else {
-                            tile.classList.add('revealed', 'diamond');
-                        }
-                    }
-
-                    if (!hit) {
-                        // Win
-                        const winAmount = betAmount * currentMultiplier;
-                        balance += winAmount;
-                        document.getElementById('status').textContent = `Win: +$${(winAmount - betAmount).toFixed(2)}`;
-                        document.getElementById('status').className = 'status win';
-                        
-                        if (winReset) {
-                            document.getElementById('bet-amount').value = initialBet.toFixed(2);
-                        } else {
-                            const newBet = betAmount * (1 + (winIncrease / 100));
-                            document.getElementById('bet-amount').value = Math.min(balance, newBet).toFixed(2);
-                        }
-                    } else {
-                        // Loss
-                        document.getElementById('status').textContent = `Loss: -$${betAmount.toFixed(2)}`;
-                        document.getElementById(' status').className = 'status lose';
-                        
-                        if (lossReset) {
-                            document.getElementById('bet-amount').value = initialBet.toFixed(2);
-                        } else {
-                            const newBet = betAmount * (1 + (lossIncrease / 100));
-                            document.getElementById('bet-amount').value = Math.min(balance, newBet).toFixed(2);
-                        }
-                    }
-
-                    updateBalance();
-                    updateBetDisplay();
-                    betCount++;
-
-                    // Check stop conditions
-                    const initialBalance = parseFloat(localStorage.getItem('initial_balance') || balance);
-                    const profit = balance - initialBalance;
-                    
-                    if (stopProfit > 0 && profit >= stopProfit) {
-                        document.getElementById('status').textContent = `Target profit reached: +$${profit.toFixed(2)}`;
-                        stopAutoGame();
-                        return;
-                    }
-                    
-                    if (stopLoss > 0 && profit <= -stopLoss) {
-                        document.getElementById('status').textContent = `Stop loss reached: -$${Math.abs(profit).toFixed(2)}`;
-                        stopAutoGame();
-                        return;
-                    }
-
-                    // Schedule next game
-                    if (autoRunning) {
-                        setTimeout(runSingleGame, speed);
-                    }
-                } catch (error) {
-                    console.error('Error in auto game:', error);
+                if (numBets > 0 && betCount >= numBets) {
                     stopAutoGame();
-                    document.getElementById('status').textContent = 'Error: ' + error.message;
+                    return;
+                }
+
+                const currentBet = parseFloat(document.getElementById('bet-amount').value);
+                if (currentBet > balance) {
+                    stopAutoGame();
+                    return;
+                }
+
+                // Place bet
+                balance -= currentBet;
+                updateBalance();
+
+                // Generate mines
+                mines.clear();
+                const mineCount = parseInt(document.getElementById('mines').value);
+                while (mines.size < mineCount) {
+                    mines.add(Math.floor(Math.random() * 25));
+                }
+
+                // Clear previous reveals
+                document.querySelectorAll('.tile').forEach(tile => {
+                    tile.className = 'tile';
+                    tile.innerHTML = '';
+                    if (selectedTiles.has(parseInt(tile.dataset.index))) {
+                        tile.classList.add('selected');
+                    }
+                });
+
+                // Check selected tiles
+                let hit = false;
+                for (const tileIndex of selectedTiles) {
+                    if (!autoRunning) return;
+
+                    const tile = document.querySelector(`[data-index="${tileIndex}"]`);
+                    await new Promise(resolve => setTimeout(resolve, speed));
+
+                    if (mines.has(tileIndex)) {
+                        hit = true;
+                        tile.classList.add('revealed', 'bomb');
+                        const img = document.createElement('img');
+                        img.src = 'bomb.png';
+                        img.alt = 'Bomb';
+                        tile.innerHTML = '';
+                        tile.appendChild(img);
+                        break;
+                    } else {
+                        tile.classList.add('revealed', 'diamond');
+                        const img = document.createElement('img');
+                        img.src = 'diamond.png';
+                        img.alt = 'Diamond';
+                        tile.innerHTML = '';
+                        tile.appendChild(img);
+                    }
+                }
+
+                if (!hit) {
+                    // Win
+                    const winAmount = currentBet * currentMultiplier;
+                    balance += winAmount;
+                    updateBalance();
+
+                    document.getElementById('status').textContent = 
+                        `Win: +$${(winAmount - currentBet).toFixed(2)}`;
+                    document.getElementById('status').className = 'status win';
+
+                    // Handle win increase/reset
+                    const winReset = document.getElementById('win-reset').classList.contains('active');
+                    const winIncrease = parseFloat(document.getElementById('win-increase').value) / 100;
+                    const nextBet = winReset ? initialBet : currentBet * (1 + winIncrease);
+                    document.getElementById('bet-amount').value = 
+                        Math.min(balance, nextBet).toFixed(2);
+                } else {
+                    // Loss
+                    document.getElementById('status').textContent = 
+                        `Loss: -$${currentBet.toFixed(2)}`;
                     document.getElementById('status').className = 'status lose';
+
+                    // Handle loss increase/reset
+                    const lossReset = document.getElementById('loss-reset').classList.contains('active');
+                    const lossIncrease = parseFloat(document.getElementById('loss-increase').value) / 100;
+                    const nextBet = lossReset ? initialBet : currentBet * (1 + lossIncrease);
+                    document.getElementById('bet-amount').value = 
+                        Math.min(balance, nextBet).toFixed(2);
+                }
+
+                betCount++;
+                updateBetDisplay();
+
+                // Check stop conditions
+                const profit = balance - startBalance;
+                if (stopProfit > 0 && profit >= stopProfit) {
+                    document.getElementById('status').textContent = 
+                        `Target profit reached: +$${profit.toFixed(2)}`;
+                    stopAutoGame();
+                    return;
+                }
+
+                if (stopLoss > 0 && -profit >= stopLoss) {
+                    document.getElementById('status').textContent = 
+                        `Stop loss reached: -$${Math.abs(profit).toFixed(2)}`;
+                    stopAutoGame();
+                    return;
+                }
+
+                if (autoRunning) {
+                    setTimeout(runAutoRound, speed);
                 }
             };
 
-            // Start the first game
-            runSingleGame();
+            runAutoRound();
         }
 
         function stopAutoGame() {
             autoRunning = false;
-            clearInterval(autoInterval);
-            const playButton = document.getElementById('play-button');
-            playButton.textContent = 'Start Autobet';
-            playButton.onclick = startGame;
+            document.getElementById('play-button').textContent = 'Start Auto';
             document.getElementById('status').textContent = 'Auto mode stopped';
             document.getElementById('status').className = 'status';
         }
 
-        // Add click handlers for reset buttons
+        // Mode switching
+        document.querySelectorAll('.mode-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const mode = button.dataset.mode;
+                if (mode === currentMode) return;
+
+                currentMode = mode;
+                document.querySelectorAll('.mode-button').forEach(btn => {
+                    btn.classList.remove('active'); });
+                button.classList.add('active');
+                document.querySelector('.auto-controls').classList.toggle('visible', mode === 'auto');
+
+                // Reset game state
+                stopAutoGame();
+                gameActive = false;
+                selectedTiles.clear();
+                document.querySelectorAll('.tile').forEach(tile => {
+                    tile.className = 'tile';
+                    tile.innerHTML = '';
+                });
+
+                const playButton = document.getElementById('play-button');
+                playButton.textContent = mode === 'manual' ? 'Bet' : 'Start Auto';
+            });
+        });
+
+        // Reset buttons
         document.getElementById('win-reset').addEventListener('click', function() {
             this.classList.toggle('active');
             document.getElementById('win-increase').disabled = this.classList.contains('active');
@@ -920,17 +906,28 @@
             document.getElementById('loss-increase').disabled = this.classList.contains('active');
         });
 
-        // Initialize the game state with better error handling
-        try {
-            updateBalance();
-            updateBetDisplay();
-
-            if (!localStorage.getItem('initial_balance')) {
-                localStorage.setItem('initial_balance', balance.toFixed(2));
+        // Initialize event listeners
+        document.getElementById('bet-amount').addEventListener('input', updateBetDisplay);
+        document.getElementById('stop-profit').addEventListener('input', function() {
+            document.getElementById('profit-display').textContent = 
+                parseFloat(this.value || 0).toFixed(2);
+        });
+        document.getElementById('stop-loss').addEventListener('input', function() {
+            document.getElementById('loss-display').textContent = 
+                parseFloat(this.value || 0).toFixed(2);
+        });
+        document.getElementById('play-button').addEventListener('click', () => {
+            if (gameActive && currentMode === 'manual') {
+                cashout();
+            } else {
+                startGame();
             }
-        } catch (e) {
-            console.error('Error initializing game:', e);
-        }
+        });
+
+        // Initialize displays
+        updateBalance();
+        updateBetDisplay();
+        updateMultiplier();
     </script>
 </body>
 </html>
